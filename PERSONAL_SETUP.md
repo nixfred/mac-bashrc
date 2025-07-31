@@ -80,16 +80,20 @@ Add:
 pi ALL=(ALL) NOPASSWD: /usr/bin/brew, /usr/sbin/brew, /bin/rm, /usr/bin/killall
 ```
 
-## 🗑️ Remove Metasploit Manually
+## 🗑️ Remove Security Tools (If Needed)
 
-Since Homebrew can't use sudo, remove metasploit manually:
+If you have security tools installed that you don't need:
 ```bash
-# Method 1: Manual removal
-sudo rm -rf /opt/metasploit-framework
-sudo pkgutil --forget com.rapid7.metasploit
+# Check what's installed
+brew list | grep -E "(metasploit|nmap|proxychains)"
 
-# Method 2: Try without cask
-brew uninstall metasploit 2>/dev/null || echo "Already removed"
+# Remove if found (example commands)
+# brew uninstall --cask metasploit  
+# brew uninstall nmap proxychains-ng
+
+# Manual removal if Homebrew fails
+# sudo rm -rf /opt/metasploit-framework
+# sudo pkgutil --forget com.rapid7.metasploit
 ```
 
 ## 🔄 Apply Changes

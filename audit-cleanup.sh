@@ -93,22 +93,46 @@ read -r response
 if [[ "$response" =~ ^[Yy]$ ]]; then
     echo -e "${GREEN}Running cleanup...${NC}"
     
-    # Remove security tools
-    brew uninstall --cask metasploit 2>/dev/null
-    brew uninstall nmap proxychains-ng 2>/dev/null
+    # Remove security tools (with better error handling)
+    if brew list --cask metasploit &> /dev/null; then
+        echo "Removing metasploit..."
+        brew uninstall --cask metasploit || echo "⚠️  Failed to remove metasploit - may need manual removal"
+    fi
     
-    # Remove duplicates
-    brew uninstall lsd bpytop 2>/dev/null
+    for tool in nmap proxychains-ng; do
+        if brew list "$tool" &> /dev/null; then
+            echo "Removing $tool..."
+            brew uninstall "$tool" || echo "⚠️  Failed to remove $tool"
+        fi
+    done
     
-    # Remove rarely used
-    brew uninstall asciinema b2-tools cloudflared docker-machine 2>/dev/null
-    brew uninstall emacs figlet filebrowser httrack iftop 2>/dev/null
-    brew uninstall lolcat midnight-commander pandoc qemu 2>/dev/null
-    brew uninstall screenresolution tesseract thefuck vnstat 2>/dev/null
+    # Remove duplicates  
+    for tool in lsd bpytop; do
+        if brew list "$tool" &> /dev/null; then
+            echo "Removing duplicate tool: $tool..."
+            brew uninstall "$tool" || echo "⚠️  Failed to remove $tool"
+        fi
+    done
+    
+    # Remove rarely used tools
+    RARELY_USED_TO_REMOVE=(
+        "asciinema" "b2-tools" "cloudflared" "docker-machine"
+        "emacs" "figlet" "filebrowser" "httrack" "iftop"
+        "lolcat" "midnight-commander" "pandoc" "qemu"
+        "screenresolution" "tesseract" "thefuck" "vnstat"
+    )
+    
+    for tool in "${RARELY_USED_TO_REMOVE[@]}"; do
+        if brew list "$tool" &> /dev/null; then
+            echo "Removing rarely used tool: $tool..."
+            brew uninstall "$tool" || echo "⚠️  Failed to remove $tool"
+        fi
+    done
     
     # Clean up
-    brew autoremove
-    brew cleanup
+    echo "Running final cleanup..."
+    brew autoremove || echo "⚠️  autoremove failed"
+    brew cleanup || echo "⚠️  cleanup failed"
     
     echo -e "${GREEN}✅ Cleanup complete!${NC}"
 else

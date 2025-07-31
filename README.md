@@ -40,7 +40,7 @@ source ~/.zshrc
 
 ### 🎨 **Beautiful System Dashboard**
 - **System stats**: CPU, memory (8GB), disk usage, uptime with accurate readings
-- **Weather integration**: Real-time weather for your location (zipcode 30677)
+- **Weather integration**: Real-time weather for your location (configurable zipcode)
 - **Network info**: Internal/external IPs, load averages, SSH status
 - **Homebrew status**: Package update notifications and maintenance
 - **Git integration**: Repository status and branch information
@@ -108,7 +108,7 @@ iTerm2, Visual Studio Code, Rectangle, Firefox
 c               # Clear screen
 ll              # Detailed file listing with colors and sizes
 la              # List all files including hidden
-weather         # Show current weather (30677)
+weather         # Show current weather (your zipcode)
 forecast        # Detailed weather forecast
 cleanup         # Deep system cleanup (caches, logs, temp files)
 aa              # Update all Homebrew packages

@@ -41,16 +41,30 @@ echo -e "${YELLOW}Setting up language version managers...${NC}"
 
 # Node.js via nvm
 if [ ! -d ~/.nvm ]; then
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm install --lts
-    nvm use --lts
+    # Get latest nvm version dynamically, fallback to known good version
+    NVM_VERSION=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' 2>/dev/null || echo "v0.39.7")
+    echo "Installing nvm $NVM_VERSION..."
+    if curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" | bash; then
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        if command -v nvm &> /dev/null; then
+            nvm install --lts
+            nvm use --lts
+        else
+            echo "⚠️  nvm installation completed but not available in current session. Restart terminal and run 'nvm install --lts'"
+        fi
+    else
+        echo "❌ Failed to install nvm. Install manually from https://github.com/nvm-sh/nvm"
+    fi
 fi
 
 # Python development
 echo -e "${YELLOW}Setting up Python development...${NC}"
-pip3 install --user pipenv virtualenv black flake8 pytest requests
+if command -v pip3 &> /dev/null; then
+    pip3 install --user pipenv virtualenv black flake8 pytest requests || echo "⚠️  Some Python packages failed to install"
+else
+    echo "⚠️  pip3 not found. Install Python 3 first: brew install python"
+fi
 
 # Global npm packages
 echo -e "${YELLOW}Installing global npm packages...${NC}"
@@ -65,8 +79,13 @@ NPMPKGS=(
     "eslint"
 )
 
-for pkg in "${NPMPKGS[@]}"; do
-    npm install -g "$pkg"
-done
+if command -v npm &> /dev/null; then
+    for pkg in "${NPMPKGS[@]}"; do
+        echo "Installing $pkg..."
+        npm install -g "$pkg" || echo "⚠️  Failed to install $pkg"
+    done
+else
+    echo "⚠️  npm not found. Install Node.js first or ensure nvm setup completed successfully"
+fi
 
 echo -e "${GREEN}✅ Development environment setup complete!${NC}"
