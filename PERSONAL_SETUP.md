@@ -1,4 +1,5 @@
 # Personal Setup Instructions
+### Version 1.0 - Production Ready
 
 ## 🔑 Private Backup Created
 
@@ -51,16 +52,18 @@ export GITHUB_TOKEN="your-github-token"
 
 ### Method 1: User-specific (Recommended)
 ```bash
-sudo visudo
+# Set nano as the default editor for visudo
+sudo EDITOR=nano visudo
 ```
 Add this line at the end:
 ```
 pi ALL=(ALL) NOPASSWD:ALL
 ```
+**Save:** `Ctrl+O`, **Exit:** `Ctrl+X`
 
 ### Method 2: Admin group (Less secure)
 ```bash
-sudo visudo
+sudo EDITOR=nano visudo
 ```
 Find the line:
 ```
@@ -70,15 +73,17 @@ Change it to:
 ```
 %admin ALL=(ALL) NOPASSWD:ALL
 ```
+**Save:** `Ctrl+O`, **Exit:** `Ctrl+X`
 
 ### Method 3: Specific commands only (Most secure)
 ```bash
-sudo visudo
+sudo EDITOR=nano visudo
 ```
 Add:
 ```
 pi ALL=(ALL) NOPASSWD: /usr/bin/brew, /usr/sbin/brew, /bin/rm, /usr/bin/killall
 ```
+**Save:** `Ctrl+O`, **Exit:** `Ctrl+X`
 
 ## 🗑️ Remove Security Tools (If Needed)
 

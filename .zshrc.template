@@ -12,7 +12,7 @@ fi
 ######################################################################
 
 # Weather Location - Change to your zipcode
-WEATHER_ZIPCODE="${WEATHER_ZIPCODE:-12345}"
+WEATHER_ZIPCODE="${WEATHER_ZIPCODE:-30677}"
 
 # Personal SSH shortcuts - Add your own servers
 # Example: alias myserver='ssh user@hostname'
