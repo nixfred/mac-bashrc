@@ -1,21 +1,25 @@
 # 🚀 Enhanced macOS Terminal Configuration
 
-> Complete terminal environment setup for macOS with system monitoring, productivity tools, and modern CLI utilities.
+> Smart terminal environment setup for macOS with intelligent system detection, automated package management, and comprehensive dotfiles management.
 
 ## 📋 TLDR - Quick Install
 
-**For a fresh macOS machine:**
+**🧠 Smart Installation (Works for BOTH fresh AND existing machines):**
 
 ```bash
-# One-line install (sets up everything)
+# One-line install - automatically detects your system type
 curl -fsSL https://raw.githubusercontent.com/nixfred/mac-bashrc/main/fresh-mac-install.sh | bash
-
-# Or manual install:
-git clone https://github.com/nixfred/mac-bashrc.git ~/dotfiles
-~/dotfiles/fresh-mac-install.sh
 ```
 
-**For existing machines with Homebrew:**
+**🔄 For Existing Setups (Refresh/Update):**
+
+```bash
+# Clone once, then refresh anytime
+git clone https://github.com/nixfred/mac-bashrc.git ~/dotfiles
+~/dotfiles/fresh-mac-install.sh  # Intelligently updates your system
+```
+
+**⚡ Manual Dotfiles Only:**
 
 ```bash
 git clone https://github.com/nixfred/mac-bashrc.git ~/dotfiles
@@ -28,37 +32,57 @@ source ~/.zshrc
 
 ## ✨ Features
 
-### 🎨 Beautiful System Dashboard
-- **System stats**: CPU, memory, disk usage, uptime
-- **Weather integration**: Automatically shows local weather
-- **Network info**: Internal/external IPs, load averages
-- **Homebrew status**: Package update notifications
-- **Git integration**: Repository status in working directories
+### 🧠 **Intelligent System Detection**
+- **Smart Setup**: Automatically detects fresh vs existing macOS systems
+- **Package Management**: Install new, upgrade outdated, skip current packages
+- **Backup Protection**: Creates timestamped backups of existing configurations
+- **Health Monitoring**: System health checks with actionable warnings
 
-### 🛠️ Productivity Tools
-- **200+ aliases**: Common tasks simplified (`ll`, `la`, `weather`, `cleanup`)
-- **Smart functions**: `extract`, `mkcd`, `backup`, `killport`, `genpass`
+### 🎨 **Beautiful System Dashboard**
+- **System stats**: CPU, memory (8GB), disk usage, uptime with accurate readings
+- **Weather integration**: Real-time weather for your location (zipcode 30677)
+- **Network info**: Internal/external IPs, load averages, SSH status
+- **Homebrew status**: Package update notifications and maintenance
+- **Git integration**: Repository status and branch information
+
+### 🛠️ **Productivity Powerhouse**
+- **200+ aliases**: Common tasks simplified (`ll`, `la`, `weather`, `cleanup`, `aa`)
+- **Smart functions**: `extract`, `mkcd`, `backup`, `killport`, `genpass`, `calc`
 - **Todo management**: Built-in `todo` command for task tracking
-- **Git enhancements**: Powerful aliases and colored output
-- **System cleanup**: Automated maintenance scripts
+- **Git enhancements**: 20+ aliases with colored output and shortcuts
+- **System maintenance**: Automated cleanup and optimization scripts
 
-### 🔧 Development Environment
-- **Modern CLI tools**: `bat`, `eza`, `ripgrep`, `fzf`, `htop`, `btop`
-- **Language support**: Node.js, Python, Go development ready
-- **Editor configs**: Enhanced Vim and Tmux configurations
-- **Git workflow**: Streamlined branching, committing, and collaboration
+### 🔧 **Development Environment**
+- **Modern CLI tools**: `bat`, `eza`, `ripgrep`, `fzf`, `htop`, `btop`, `fd`, `zoxide`
+- **Language support**: Node.js, Python 3.13, Go development ready
+- **Editor configs**: Enhanced Vim, Tmux, and shell configurations
+- **Git workflow**: Streamlined branching, committing, and collaboration tools
 
 ---
 
 ## 📦 What Gets Installed
 
+### 🔧 **Smart Installation Process**
+
+**Fresh macOS Machine:**
+- ✅ Installs Homebrew from scratch
+- ✅ Installs all essential CLI tools and applications
+- ✅ Sets up complete dotfiles configuration
+- ✅ Applies macOS system optimizations
+
+**Existing macOS Machine:**
+- 🔄 Updates Homebrew and upgrades outdated packages
+- 🔄 Refreshes dotfiles with automatic backup
+- 🔄 Runs system health check and maintenance
+- 🔄 Patches configuration gaps
+
 ### Essential CLI Tools
 ```
-git, wget, curl, tree, jq, vim, tmux
-htop, btop, eza, bat, fd, ripgrep, fzf, zoxide
-neofetch, tldr, ncdu, duf, osx-cpu-temp
-node, python, gh (GitHub CLI)
-zsh-syntax-highlighting, zsh-autosuggestions
+Core: git, wget, curl, tree, jq, vim, tmux
+Enhanced: htop, btop, eza, bat, fd, ripgrep, fzf, zoxide
+System: neofetch, tldr, ncdu, duf, osx-cpu-temp
+Dev: node, python@3.13, gh (GitHub CLI)
+Shell: zsh-syntax-highlighting, zsh-autosuggestions
 ```
 
 ### Applications (via Homebrew Cask)
@@ -66,84 +90,112 @@ zsh-syntax-highlighting, zsh-autosuggestions
 iTerm2, Visual Studio Code, Rectangle, Firefox
 ```
 
-### Dotfiles Included
-- **`.bashrc`** / **`.zshrc`** - Enhanced shell with system dashboard
-- **`.vimrc`** - Modern Vim configuration with sensible defaults
-- **`.tmux.conf`** - Tmux with better key bindings and styling
-- **`.gitconfig`** - Comprehensive Git aliases and colors
-- **`.gitignore_global`** - Global ignore patterns for all projects
-- **`.inputrc`** - Enhanced bash/readline completion
+### Complete Dotfiles Suite
+- **`.bashrc`** / **`.zshrc`** - Enhanced shells with intelligent system dashboard
+- **`.vimrc`** - Modern Vim configuration with backup/undo management
+- **`.tmux.conf`** - Tmux with better key bindings, mouse support, and styling
+- **`.gitconfig`** - 20+ Git aliases, colors, and workflow optimizations
+- **`.gitignore_global`** - Comprehensive ignore patterns for all projects
+- **`.inputrc`** - Enhanced bash/readline completion and Vi mode
+- **`.env.local.template`** - Secure environment variable template
 
 ---
 
 ## 🎯 Key Commands
 
-### System & Productivity
+### 🏠 **System & Productivity**
 ```bash
 c               # Clear screen
-ll              # Detailed file listing with colors
+ll              # Detailed file listing with colors and sizes
 la              # List all files including hidden
-weather         # Show current weather
+weather         # Show current weather (30677)
 forecast        # Detailed weather forecast
-cleanup         # System cleanup (caches, logs, etc.)
+cleanup         # Deep system cleanup (caches, logs, temp files)
 aa              # Update all Homebrew packages
-sysinfo         # Detailed system information
+sysinfo         # Detailed system information and specs
 ports           # Show listening network ports
+listening 3000  # Check what's listening on specific port
 ```
 
-### File Operations
+### 📁 **File Operations**
 ```bash
-extract <file>      # Extract any archive format
+extract <file>      # Extract any archive format (zip, tar, etc.)
 mkcd <dir>          # Create directory and cd into it
-backup <file>       # Create timestamped backup
-ff <pattern>        # Find files by name
-fd <pattern>        # Find directories by name
+backup <file>       # Create timestamped backup copy
+ff <pattern>        # Find files by name pattern
+dirsize             # Show directory sizes sorted
+tree                # Display directory tree structure
 ```
 
-### Development
+### ⚡ **Development & Git**
 ```bash
 gs              # git status
 ga              # git add
 gc              # git commit
 gp              # git push
 gl              # git pull
-glog            # Pretty git log graph
+glog            # Pretty git log graph with branches
+gco             # git checkout
+gcm "msg"       # git commit -m "message"
+undo            # git reset --soft HEAD~1
 killport 3000   # Kill process running on port 3000
 serve           # Start HTTP server in current directory
+calc "2+2*3"    # Quick calculator
+genpass 20      # Generate secure 20-char password
 ```
 
-### Todo Management
+### ✅ **Todo Management**
 ```bash
-todo add "Task description"    # Add new task
-todo list                      # Show all tasks
+todo add "Task description"    # Add new task with timestamp
+todo list                      # Show all tasks numbered
 todo done 1                    # Mark task 1 as complete
 todo clear                     # Clear all tasks
+```
+
+### 🔧 **System Utilities**
+```bash
+~/dotfiles/fresh-mac-install.sh    # Smart system refresh/setup
+~/dotfiles/audit-cleanup.sh        # Remove unnecessary packages
+~/dotfiles/cleanup.sh              # Deep system cleanup
+upzsh                              # Push .zshrc changes to Git
+downzsh                            # Pull .zshrc updates from Git
 ```
 
 ---
 
 ## 🔧 Configuration
 
-### Environment Variables
-1. Copy the template: `cp ~/dotfiles/.env.local.template ~/.env.local`
-2. Edit with your API keys and tokens:
+### 🔐 **Environment Variables** (Secure Setup)
+1. **Copy the template**: `cp ~/dotfiles/.env.local.template ~/.env.local`
+2. **Edit with your API keys and tokens**:
 ```bash
 export OPENAI_API_KEY="your-key-here"
 export GITHUB_TOKEN="your-token-here"
+export AWS_ACCESS_KEY_ID="your-aws-key"
 # etc...
 ```
+> ⚠️ `.env.local` is automatically excluded from git commits for security
 
-### Git Setup
+### ⚙️ **Git Setup** (Automated Check)
+The smart install script checks your git config automatically:
 ```bash
 git config --global user.email "your.email@example.com"
 git config --global user.name "Your Name"
 ```
 
-### SSH Key Generation
+### 🔑 **SSH Key Generation** (With Health Check)
 ```bash
 ssh-keygen -t ed25519 -C "your.email@example.com"
 pbcopy < ~/.ssh/id_ed25519.pub  # Copy public key
 # Add to GitHub: Settings → SSH Keys
+```
+> 💡 The install script will warn you if no SSH keys are found
+
+### 📍 **Weather Location** (Custom Zipcode)
+Edit the zipcode in `.bashrc` and `.zshrc`:
+```bash
+# Change 30677 to your zipcode
+WEATHER=$(curl -s --max-time 2 "wttr.in/YOUR_ZIPCODE?format=%C+%t" 2>/dev/null || echo "N/A")
 ```
 
 ---
@@ -174,11 +226,33 @@ downzsh             # Pull .zshrc from GitHub
 
 ## 📱 System Requirements
 
-- **macOS**: 10.15+ (tested on Sequoia/Tahoe)
-- **Homebrew**: Automatically installed by setup script
-- **Zsh**: Default shell (also supports Bash)
-- **Git**: For dotfiles management
-- **Internet**: For package installations and weather
+- **macOS**: 10.15+ (tested on Sequoia 15.x, Tahoe 26.x)
+- **Architecture**: Intel x64 and Apple Silicon (arm64) supported
+- **Homebrew**: Automatically installed by setup script (or updated if present)
+- **Shell**: Zsh (default) or Bash - both fully supported
+- **Git**: For dotfiles management and updates
+- **Internet**: For package installations, weather, and repository updates
+
+## 🧠 Smart Features
+
+### **Intelligent System Detection**
+The setup script automatically detects your system state:
+- **Fresh macOS**: Full installation with Homebrew setup
+- **Existing setup**: Refresh/update mode with package upgrades
+- **Dotfiles present**: Automatic backup before replacement
+- **Missing components**: Installs only what's needed
+
+### **Automatic Package Management**
+- **New packages**: Installs missing tools
+- **Outdated packages**: Upgrades to latest versions  
+- **Current packages**: Skips to save time
+- **Maintenance**: Automatic cleanup and autoremove
+
+### **System Health Monitoring**
+- **SSH keys**: Warns if none found
+- **VS Code**: Checks CLI tool installation
+- **Zsh plugins**: Validates syntax highlighting
+- **Git config**: Ensures proper user setup
 
 ---
 
