@@ -219,20 +219,15 @@ print_fun_banner() {
   LOAD=$(uptime | awk -F'load averages: ' '{print $2}')
   DISK=$(df -h / | awk 'NR==2 {print $5 " used on " $2}')
 
-  # Mac memory info
-  MEM_INFO=$(vm_stat | awk '
+  # Mac memory info (using system_profiler for accuracy)
+  TOTAL_MEM=$(system_profiler SPHardwareDataType | grep "Memory:" | awk '{print $2}')
+  MEM_INFO=$(vm_stat | awk -v total="$TOTAL_MEM" '
     /page size/ { gsub(/[^0-9]/, "", $0); pagesize = $0 }
     /Pages free/ { free = $3 }
-    /Pages active/ { active = $3 }
-    /Pages inactive/ { inactive = $3 }
-    /Pages speculative/ { spec = $3 }
-    /Pages wired/ { wired = $3 }
     END {
-      gsub(/\./, "", free); gsub(/\./, "", active); gsub(/\./, "", inactive); gsub(/\./, "", spec); gsub(/\./, "", wired)
-      total_pages = free + active + inactive + spec + wired
+      gsub(/\./, "", free)
       free_mb = (free * pagesize) / 1024 / 1024
-      total_mb = (total_pages * pagesize) / 1024 / 1024
-      printf "%.0fMB free / %.0fMB total", free_mb, total_mb
+      printf "%.0fMB free / %sB total", free_mb, total
     }')
 
   DATE=$(date)
