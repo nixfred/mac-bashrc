@@ -1,0 +1,63 @@
+# Enhanced Readline Configuration
+# Controls behavior of command line editing in bash and other programs
+
+# Case-insensitive tab completion
+set completion-ignore-case on
+
+# Show all completions immediately
+set show-all-if-ambiguous on
+
+# Show file type indicators (like ls -F)
+set visible-stats on
+
+# Allow UTF-8 input and output
+set input-meta on
+set output-meta on
+set convert-meta off
+
+# Use Vi editing mode (comment out for Emacs mode)
+set editing-mode vi
+
+# Emacs mode key bindings (uncomment if preferred)
+# set editing-mode emacs
+# "\C-p": history-search-backward
+# "\C-n": history-search-forward
+
+# Vi mode specific settings
+set keymap vi-command
+"gg": beginning-of-history
+"G": end-of-history
+
+set keymap vi-insert
+"\C-l": clear-screen
+"\C-p": history-search-backward
+"\C-n": history-search-forward
+
+# Common to both modes
+set keymap emacs
+
+# Better history search
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+"\e[1;5C": forward-word
+"\e[1;5D": backward-word
+
+# Use the text already typed as prefix for history search
+"\e[5~": history-search-backward
+"\e[6~": history-search-forward
+
+# Colored completion
+set colored-stats on
+set colored-completion-prefix on
+
+# Mark symlinked directories
+set mark-symlinked-directories on
+
+# Don't ring bell on completion
+set bell-style none
+
+# Show completions horizontally in alphabetical order
+set print-completions-horizontally off
+
+# Display possible completions using different colors
+set colored-stats on
