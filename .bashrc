@@ -220,7 +220,7 @@ print_fun_banner() {
   DISK=$(df -h / | awk 'NR==2 {print $5 " used on " $2}')
 
   # Mac memory info (using system_profiler for accuracy)
-  TOTAL_MEM=$(system_profiler SPHardwareDataType | grep "Memory:" | awk '{print $2 " " $3}')
+  TOTAL_MEM=$(system_profiler SPHardwareDataType | grep "Memory:" | awk '{print $2$3}')
   MEM_INFO=$(vm_stat | awk -v total="$TOTAL_MEM" '
     /page size/ { gsub(/[^0-9]/, "", $0); pagesize = $0 }
     /Pages free/ { free = $3 }
