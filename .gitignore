@@ -1,0 +1,28 @@
+# Sensitive files
+.env.local
+.env
+*.key
+*.pem
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Temporary files
+*.swp
+*.swo
+*~
+.*.sw?
+
+# Backup files
+*.backup
+*.bak
+*.orig
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
