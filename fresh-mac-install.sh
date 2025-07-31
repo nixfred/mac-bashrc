@@ -1,5 +1,5 @@
 #!/bin/bash
-# Smart macOS Terminal Setup Script
+# Smart macOS Terminal Setup Script - FIXED VERSION
 # Handles both fresh machines and existing setups with intelligent refresh
 
 set -e  # Exit on error
@@ -37,19 +37,24 @@ print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
+# Function to print error and exit
+print_error() {
+    echo -e "${RED}❌ Error: $1${NC}"
+    exit 1
+}
+
 # Check if running on macOS
 if [[ "$(uname)" != "Darwin" ]]; then
-    echo -e "${RED}❌ Error: This script is for macOS only${NC}"
-    exit 1
+    print_error "This script is for macOS only"
 fi
 
 # Detect system state
-HOMEBREW_INSTALLED=false
+HOMEBREW_WAS_INSTALLED=false
 DOTFILES_EXIST=false
 FRESH_INSTALL=true
 
 if command -v brew &> /dev/null; then
-    HOMEBREW_INSTALLED=true
+    HOMEBREW_WAS_INSTALLED=true
     FRESH_INSTALL=false
     print_status "Homebrew detected - this appears to be an existing system"
 fi
@@ -74,22 +79,38 @@ mkdir -p ~/.vim/{backup,swap,undo}
 print_success "Directory structure ready"
 
 print_section "Homebrew Setup"
-if $HOMEBREW_INSTALLED; then
+HOMEBREW_NEWLY_INSTALLED=false
+
+if $HOMEBREW_WAS_INSTALLED; then
     print_status "Homebrew already installed - updating..."
-    brew update
+    if ! brew update; then
+        print_warning "Homebrew update failed - continuing anyway"
+    fi
     print_success "Homebrew updated"
 else
     print_status "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+        print_error "Homebrew installation failed"
+    fi
     
-    # Add Homebrew to PATH for Apple Silicon Macs
+    HOMEBREW_NEWLY_INSTALLED=true
+    
+    # Add Homebrew to PATH (check if already exists first)
+    BREW_SHELLENV_LINE=""
     if [[ $(uname -m) == "arm64" ]]; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+        BREW_SHELLENV_LINE='eval "$(/opt/homebrew/bin/brew shellenv)"'
         eval "$(/opt/homebrew/bin/brew shellenv)"
     else
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+        BREW_SHELLENV_LINE='eval "$(/usr/local/bin/brew shellenv)"'
         eval "$(/usr/local/bin/brew shellenv)"
     fi
+    
+    # Only add to .zprofile if not already present
+    if ! grep -q "$BREW_SHELLENV_LINE" ~/.zprofile 2>/dev/null; then
+        echo "$BREW_SHELLENV_LINE" >> ~/.zprofile
+        print_status "Added Homebrew to PATH in .zprofile"
+    fi
+    
     print_success "Homebrew installed and configured"
 fi
 
@@ -137,12 +158,17 @@ SKIPPED_COUNT=0
 
 for tool in "${ESSENTIAL_TOOLS[@]}"; do
     if brew list "$tool" &> /dev/null; then
-        if $HOMEBREW_INSTALLED; then
+        # FIX: Check if we should upgrade (either was installed before OR newly installed)
+        if $HOMEBREW_WAS_INSTALLED || $HOMEBREW_NEWLY_INSTALLED; then
             # Check if outdated and upgrade if needed
             if brew outdated | grep -q "^$tool"; then
                 echo "Upgrading $tool..."
-                brew upgrade "$tool"
-                ((UPDATED_COUNT++))
+                if brew upgrade "$tool"; then
+                    ((UPDATED_COUNT++))
+                else
+                    print_warning "Failed to upgrade $tool"
+                    ((SKIPPED_COUNT++))
+                fi
             else
                 echo "✅ $tool (up to date)"
                 ((SKIPPED_COUNT++))
@@ -153,8 +179,11 @@ for tool in "${ESSENTIAL_TOOLS[@]}"; do
         fi
     else
         echo "Installing $tool..."
-        brew install "$tool"
-        ((INSTALLED_COUNT++))
+        if brew install "$tool"; then
+            ((INSTALLED_COUNT++))
+        else
+            print_warning "Failed to install $tool"
+        fi
     fi
 done
 
@@ -177,19 +206,22 @@ for app in "${ESSENTIAL_APPS[@]}"; do
         ((APP_SKIPPED_COUNT++))
     else
         echo "Installing $app..."
-        brew install --cask "$app"
-        ((APP_INSTALLED_COUNT++))
+        if brew install --cask "$app"; then
+            ((APP_INSTALLED_COUNT++))
+        else
+            print_warning "Failed to install $app"
+        fi
     fi
 done
 
 print_success "Applications: $APP_INSTALLED_COUNT installed, $APP_SKIPPED_COUNT already present"
 
-# Cleanup outdated packages
-if $HOMEBREW_INSTALLED; then
+# Cleanup outdated packages (only if Homebrew was working before)
+if $HOMEBREW_WAS_INSTALLED || $HOMEBREW_NEWLY_INSTALLED; then
     print_section "Homebrew Maintenance"
     print_status "Cleaning up outdated packages..."
-    brew cleanup
-    brew autoremove
+    brew cleanup || print_warning "Cleanup failed"
+    brew autoremove || print_warning "Autoremove failed"
     print_success "Homebrew maintenance complete"
 fi
 
@@ -202,8 +234,8 @@ git config --global push.default simple
 git config --global push.autoSetupRemote true
 
 # Check if user info is set
-GIT_EMAIL=$(git config --global user.email || echo "")
-GIT_NAME=$(git config --global user.name || echo "")
+GIT_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
+GIT_NAME=$(git config --global user.name 2>/dev/null || echo "")
 
 if [ -z "$GIT_EMAIL" ] || [ -z "$GIT_NAME" ]; then
     print_warning "Git user info not complete. Current settings:"
@@ -220,23 +252,37 @@ fi
 print_section "Dotfiles Installation"
 DOTFILES_REPO="https://github.com/nixfred/mac-bashrc.git"
 
+# FIX: Better error handling for git operations
 if [ -d ~/dotfiles ]; then
     print_status "Updating existing dotfiles repository..."
-    cd ~/dotfiles
-    git stash push -m "Auto-stash before update $(date)" 2>/dev/null || true
-    git pull origin main
-    print_success "Dotfiles repository updated"
+    if cd ~/dotfiles; then
+        git stash push -m "Auto-stash before update $(date)" 2>/dev/null || true
+        if git pull origin main; then
+            print_success "Dotfiles repository updated"
+        else
+            print_warning "Failed to update dotfiles repository - using existing version"
+        fi
+    else
+        print_error "Failed to access ~/dotfiles directory"
+    fi
 else
     print_status "Cloning dotfiles repository..."
-    git clone "$DOTFILES_REPO" ~/dotfiles
-    print_success "Dotfiles repository cloned"
+    if git clone "$DOTFILES_REPO" ~/dotfiles; then
+        print_success "Dotfiles repository cloned"
+    else
+        print_error "Failed to clone dotfiles repository. Check network connection and repository access."
+    fi
+fi
+
+# FIX: Ensure we're in the right directory
+if ! cd ~/dotfiles; then
+    print_error "Cannot access dotfiles directory"
 fi
 
 # Backup existing dotfiles if they exist
 BACKUP_DIR=~/dotfiles_backup_$(date +%Y%m%d_%H%M%S)
 BACKED_UP_FILES=()
 
-cd ~/dotfiles
 for file in .bashrc .zshrc .vimrc .tmux.conf .gitconfig .gitignore_global .inputrc; do
     if [ -f "$file" ]; then
         # Check if home file exists and is different
