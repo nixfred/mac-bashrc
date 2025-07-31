@@ -165,6 +165,43 @@ downzsh                            # Pull .zshrc updates from Git
 
 ## 🔧 Configuration
 
+### 🏠 **Portable Configuration System**
+
+This repository is now **machine-agnostic**! The dotfiles work on any Mac without hardcoded paths or personal data.
+
+#### **Template-Based Setup**
+- **`.bashrc.template`** - Portable bash configuration (configurable zipcode, no hardcoded SSH aliases)
+- **`.zshrc.template`** - Portable zsh configuration (configurable zipcode, no hardcoded SSH aliases)
+- **Personal files** (kept private, not in git):
+  - `~/.bashrc.personal` - Your SSH shortcuts and personal aliases
+  - `~/.env.local` - API keys and sensitive environment variables
+
+#### **First-Time Setup on Any Mac**
+1. **Set your weather location**:
+```bash
+echo 'export WEATHER_ZIPCODE="12345"' >> ~/.env.local
+```
+
+2. **Add your SSH shortcuts**:
+```bash
+cat > ~/.bashrc.personal << 'EOF'
+# Personal SSH shortcuts
+alias myserver='ssh user@hostname'
+alias prod='ssh user@production-server'
+EOF
+```
+
+3. **Copy your API keys to `~/.env.local`**:
+```bash
+export OPENAI_API_KEY="your-key-here"
+export GITHUB_TOKEN="your-token-here"
+# etc...
+```
+
+> ✅ **Privacy**: Personal data stays in `~/.bashrc.personal` and `~/.env.local` (git-ignored)  
+> ✅ **Portable**: Template files work on any Mac without modification  
+> ✅ **Secure**: No sensitive data in public repository
+
 ### 🔐 **Environment Variables** (Secure Setup)
 1. **Copy the template**: `cp ~/dotfiles/.env.local.template ~/.env.local`
 2. **Edit with your API keys and tokens**:
@@ -192,11 +229,12 @@ pbcopy < ~/.ssh/id_ed25519.pub  # Copy public key
 > 💡 The install script will warn you if no SSH keys are found
 
 ### 📍 **Weather Location** (Custom Zipcode)
-Edit the zipcode in `.bashrc` and `.zshrc`:
+Set your zipcode in the portable configuration:
 ```bash
-# Change 30677 to your zipcode
-WEATHER=$(curl -s --max-time 2 "wttr.in/YOUR_ZIPCODE?format=%C+%t" 2>/dev/null || echo "N/A")
+# Add to ~/.env.local (private, not tracked in git)
+echo 'export WEATHER_ZIPCODE="12345"' >> ~/.env.local
 ```
+> The templates automatically use `$WEATHER_ZIPCODE` variable, defaulting to 12345 if not set
 
 ---
 
@@ -258,24 +296,31 @@ The setup script automatically detects your system state:
 
 ## 🎨 Customization
 
-### Weather Location
-Edit the zipcode in `.bashrc` and `.zshrc`:
+### **Personal Configuration**
+Use the portable system for all customizations:
+
+1. **Weather Location**:
 ```bash
-# Change 30677 to your zipcode
-WEATHER=$(curl -s --max-time 2 "wttr.in/YOUR_ZIPCODE?format=%C+%t" 2>/dev/null || echo "N/A")
+echo 'export WEATHER_ZIPCODE="90210"' >> ~/.env.local
 ```
 
-### Color Themes
+2. **SSH Shortcuts**:
+```bash
+echo 'alias prod="ssh user@prod-server"' >> ~/.bashrc.personal
+```
+
+3. **Custom Aliases**:
+```bash
+echo 'alias ll="ls -la"' >> ~/.bashrc.personal
+```
+
+### **Color Themes**
 The configuration uses standard terminal colors. For advanced theming:
 1. Install iTerm2 color schemes
-2. Configure terminal.app themes
-3. Modify prompt colors in shell configs
+2. Configure terminal.app themes  
+3. Modify prompt colors in shell template files
 
-### Adding Custom Aliases
-Add to `.bashrc` or `.zshrc`:
-```bash
-alias myalias='command here'
-```
+> 💡 **Personal files** (`~/.bashrc.personal`, `~/.env.local`) are git-ignored for privacy
 
 ---
 

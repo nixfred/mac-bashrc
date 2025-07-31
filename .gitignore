@@ -4,6 +4,11 @@
 *.key
 *.pem
 
+# Personal configuration files
+.bashrc.personal
+.zshrc.personal
+personal-config-backup.txt
+
 # macOS
 .DS_Store
 .AppleDouble

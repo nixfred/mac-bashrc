@@ -1,14 +1,11 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# Enhanced macOS Terminal Configuration - Portable Version
+# ~/.zshrc: Enhanced configuration for zsh - Portable Version
 # Version 2.1 - Machine-agnostic
+# Based on fnix.local .bashrc configuration
 
-# Suppress macOS zsh default shell warning
-export BASH_SILENCE_DEPRECATION_WARNING=1
-
-case $- in
-    *i*) ;;
-      *) return;;
-esac
+# Enable Powerlevel10k instant prompt (if installed)
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 ######################################################################
 # PERSONAL CONFIGURATION - CUSTOMIZE THESE
@@ -40,8 +37,8 @@ alias l='ls -CFhG'
 alias aa='brew update && brew upgrade && brew cleanup'
 alias c='clear'
 alias e='exit'
-alias sb='source ~/.bashrc'
-alias bm='nano ~/.bashrc && source ~/.bashrc'
+alias sb='source ~/.zshrc'
+alias bm='nano ~/.zshrc && source ~/.zshrc'
 alias top='htop'
 alias htop='htop'
 alias du='du -sh * | sort -h'
@@ -71,9 +68,9 @@ alias log='tail -f /var/log/system.log'
 alias tarx='tar -xvzf'
 alias tarc='tar -cvzf'
 alias myprocesses='ps -ef | grep $USER'
-alias reload='source ~/.bashrc'
+alias reload='source ~/.zshrc'
 
-# Mac-specific aliases  
+# Mac-specific aliases
 alias brewlist='brew list'
 alias brewsearch='brew search'
 alias brewinfo='brew info'
@@ -102,59 +99,45 @@ alias weather="curl -s --max-time 5 \"wttr.in/\${WEATHER_ZIPCODE}?format=3\" 2>/
 alias forecast="curl -s \"wttr.in/\${WEATHER_ZIPCODE}\""
 
 ######################################################################
-# HISTORY AND SHELL OPTIONS
+# HISTORY CONFIGURATION
 ######################################################################
 
-HISTCONTROL=ignoreboth:erasedups
-shopt -s histappend
-HISTSIZE=5000
-HISTFILESIZE=10000
-HISTTIMEFORMAT="%d/%m/%y %T "
-shopt -s checkwinsize
-shopt -s cdspell
-shopt -s autocd 2>/dev/null
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+
+######################################################################
+# ZSH OPTIONS
+######################################################################
+
+setopt AUTO_CD
+setopt CORRECT
+setopt COMPLETE_IN_WORD
+setopt IGNORE_EOF
+setopt INTERACTIVE_COMMENTS
+setopt NO_BEEP
+setopt PROMPT_SUBST
 
 ######################################################################
 # PROMPT CONFIGURATION
 ######################################################################
 
-# Set chroot name (if any)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
-fi
+# Load version control information
+autoload -Uz vcs_info
+precmd() { vcs_info }
 
-# Prompt color support
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
+# Format the vcs_info_msg_0_ variable
+zstyle ':vcs_info:git:*' formats ' (%b)'
 
-force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-        color_prompt=yes
-    else
-        color_prompt=
-    fi
-fi
-
-# Prompt colors
-RED="\[\033[0;31m\]"
-GREEN="\[\033[0;32m\]"
-BLUE="\[\033[0;34m\]"
-CYAN="\[\033[0;36m\]"
-YELLOW="\[\033[0;33m\]"
-RESET="\[\033[0m\]"
-
-PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)\$ ${RESET}"
-
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
+# Set up the prompt (similar to bash version)
+PROMPT='%F{green}%n%f%F{red}@%f%F{yellow}%m%f%F{cyan}:(%~)%f%F{yellow}${vcs_info_msg_0_}%f$ '
 
 ######################################################################
 # COLOR SUPPORT
@@ -343,23 +326,28 @@ fi
 # AUTO-COMPLETION
 ######################################################################
 
-# Enable programmable completion features
-if [ -f /opt/homebrew/etc/bash_completion ]; then
-    . /opt/homebrew/etc/bash_completion
-elif [ -f /usr/local/etc/bash_completion ]; then
-    . /usr/local/etc/bash_completion
-fi
+# Enable zsh completions
+autoload -Uz compinit
+compinit
 
-# cd into directory just by typing the directory name
-shopt -s autocd 2>/dev/null
+# Case-insensitive completion
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
+# Colored completion
+zstyle ':completion:*' list-colors ''
+
+# Menu selection
+zstyle ':completion:*' menu select
 
 ######################################################################
 # DOTFILES MANAGEMENT
 ######################################################################
 
-# Dotfiles management
+# Dotfiles management (adapted for zsh)
 alias upbash='cd ~/dotfiles && cp ~/.bashrc . && git add .bashrc && git commit -m "Update .bashrc from $(hostname) - $(date +%Y-%m-%d_%H:%M)" && git push'
+alias upzsh='cd ~/dotfiles && cp ~/.zshrc . && git add .zshrc && git commit -m "Update .zshrc from $(hostname) - $(date +%Y-%m-%d_%H:%M)" && git push'
 alias downbash='cd ~/dotfiles && git pull && cp .bashrc ~/.bashrc && source ~/.bashrc && echo "✅ .bashrc updated!"'
+alias downzsh='cd ~/dotfiles && git pull && cp .zshrc ~/.zshrc && source ~/.zshrc && echo "✅ .zshrc updated!"'
 alias bashstat='cd ~/dotfiles && git status'
 
 ######################################################################
@@ -457,18 +445,29 @@ xterm*|rxvt*)
     ;;
 esac
 
-# Completion for custom commands
-complete -W "add list done clear" todo
-complete -d proj
-
+######################################################################
+# ZSH SPECIFIC FEATURES
 ######################################################################
 
-# Disable bracketed paste mode
-printf "\e[?2004l"
+# Better word splitting
+setopt SH_WORD_SPLIT
+
+# Enable extended globbing
+setopt EXTENDED_GLOB
+
+# Syntax highlighting (if installed)
+if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+# Auto suggestions (if installed)
+if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 
 ######################################################################
 
 # Load personal customizations if they exist
-if [ -f ~/.bashrc.personal ]; then
-    source ~/.bashrc.personal
+if [ -f ~/.zshrc.personal ]; then
+    source ~/.zshrc.personal
 fi
