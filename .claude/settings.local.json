@@ -22,7 +22,14 @@
       "Bash(echo:*)",
       "Bash(chsh:*)",
       "Bash(/opt/homebrew/bin/bash:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(time:*)",
+      "Bash(chmod:*)",
+      "Bash(bash:*)",
+      "Bash(hostname)",
+      "Bash(rm:*)",
+      "Bash(/bin/bash:*)"
     ],
     "deny": []
   }

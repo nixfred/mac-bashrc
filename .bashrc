@@ -303,28 +303,55 @@ weather_detailed() {
 # MAC BANNER - Enhanced version
 ######################################################################
 
+# Fast, simple banner that won't hang
+print_simple_banner() {
+  local HOST=$(hostname -s 2>/dev/null || echo "Mac")
+  local UPTIME=$(uptime | awk -F'up ' '{print $2}' | awk -F',' '{print $1}' | xargs)
+  local LOAD=$(uptime | awk -F'load averages: ' '{print $2}')
+  local DISK=$(df -h / | awk 'NR==2 {print $5}')
+  local DATE=$(date '+%a %b %d %H:%M')
+  local MACOS=$(sw_vers -productVersion 2>/dev/null || echo "macOS")
+  
+  # Simple color codes
+  local CYAN='\033[1;36m'
+  local YELLOW='\033[1;33m'
+  local GREEN='\033[0;32m'
+  local NC='\033[0m'
+  
+  echo -e "${CYAN}================================================${NC}"
+  echo -e "${CYAN}  🖥️  ${YELLOW}$HOST${NC} | ${GREEN}macOS $MACOS${NC}"
+  echo -e "${CYAN}  ⏱️  Up: ${GREEN}$UPTIME${NC} | Load: ${GREEN}$LOAD${NC}"
+  echo -e "${CYAN}  💾  Disk: ${GREEN}$DISK used${NC} | ${GREEN}$DATE${NC}"
+  echo -e "${CYAN}================================================${NC}"
+}
+
+# Full detailed banner with performance fixes
 print_fun_banner() {
   HOST=$(hostname)
-  IPs=$(ifconfig | grep 'inet ' | grep -v 127.0.0.1 | awk '{print $2}' | tr '\n' ' ')
-  EXTERNAL_IP=$(timeout 3 curl -s ifconfig.me 2>/dev/null || echo "N/A")
+  # Fix ifconfig hanging - use specific interface and timeout
+  IPs=$(timeout 1 ifconfig en0 2>/dev/null | grep 'inet ' | awk '{print $2}' || echo "N/A")
+  if [ "$IPs" = "N/A" ]; then
+    IPs=$(timeout 1 ifconfig en1 2>/dev/null | grep 'inet ' | awk '{print $2}' || echo "N/A")
+  fi
+  EXTERNAL_IP=$(timeout 2 curl -s ifconfig.me 2>/dev/null || echo "N/A")
   UPTIME=$(uptime | sed 's/.*up \([^,]*\).*/\1/')
   USERS=$(who | wc -l | tr -d ' ')
   LOAD=$(uptime | awk -F'load averages: ' '{print $2}')
   DISK=$(df -h / | awk 'NR==2 {print $5 " used on " $2}')
 
-  # Mac memory info (using system_profiler for accuracy)
-  TOTAL_MEM=$(system_profiler SPHardwareDataType | grep "Memory:" | awk '{print $2$3}')
+  # Faster memory info - avoid system_profiler
+  TOTAL_MEM=$(sysctl -n hw.memsize | awk '{print int($1/1024/1024/1024) "GB"}')
   MEM_INFO=$(vm_stat | awk -v total="$TOTAL_MEM" '
     /page size/ { gsub(/[^0-9]/, "", $0); pagesize = $0 }
     /Pages free/ { free = $3 }
     END {
       gsub(/\./, "", free)
       free_mb = (free * pagesize) / 1024 / 1024
-      printf "%.0fMB free / %s total", free_mb, total
+      printf "%.0fMB free / %s", free_mb, total
     }')
 
   DATE=$(date)
-  LASTLOGIN=$(last -n 1 "$USER" 2>/dev/null | awk 'NR==1 {$1=""; print $0}' || echo "N/A")
+  LASTLOGIN=$(timeout 1 last -n 1 "$USER" 2>/dev/null | head -1 | awk '{$1=""; print $0}' | xargs || echo "N/A")
 
   # Mac CPU temperature (if available)
   if command -v osx-cpu-temp >/dev/null 2>&1; then
@@ -341,8 +368,8 @@ print_fun_banner() {
   # macOS version
   MACOS_VER=$(sw_vers -productVersion)
 
-  # Brew outdated count
-  BREW_OUTDATED=$(brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ')
+  # Brew outdated count - with timeout to prevent hanging
+  BREW_OUTDATED=$(timeout 2 brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ' || echo "0")
   if [ "$BREW_OUTDATED" -eq 0 ] 2>/dev/null; then
     BREW_STATUS="Up to date"
   else
@@ -352,8 +379,6 @@ print_fun_banner() {
   # Weather using zipcode variable
   WEATHER=$(curl -s --max-time 2 "wttr.in/$WEATHER_ZIPCODE?format=%C+%t" 2>/dev/null || echo "N/A")
 
-  # SSH failures from system log (last 24 hours) - simplified for speed
-  SSH_FAILS="Check manually with 'log show --last 24h'"
 
   # Colors for banner
   local BANNER_COLOR='\033[1;36m'  # Bright cyan
@@ -379,11 +404,11 @@ print_fun_banner() {
   printf "${BORDER_COLOR}*${LABEL_COLOR}  Weather:     ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$WEATHER ($WEATHER_ZIPCODE)"
   printf "${BORDER_COLOR}*${LABEL_COLOR}  Date:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$DATE"
   printf "${BORDER_COLOR}*${LABEL_COLOR}  Last Login:  ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$LASTLOGIN"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  SSH Fails:   ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$SSH_FAILS"
   printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 
-# print_fun_banner  # Temporarily disabled - causing bash timeouts
+# Enable the full banner on startup
+print_fun_banner
 
 ######################################################################
 # ENVIRONMENT VARIABLES AND PATHS
