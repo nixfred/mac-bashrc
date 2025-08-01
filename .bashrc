@@ -98,6 +98,11 @@ alias gco='git checkout'
 alias gcm='git commit -m'
 alias glog='git log --oneline --graph --decorate'
 
+# Dotfiles sync shortcuts
+alias syncup='cd ~/mac-bashrc && cp ~/.bashrc . && cp ~/.bash_profile . && cp ~/.zshrc . && git add . && git commit -m "Sync from $(hostname)" && git push && cd -'
+alias syncdown='cd ~/mac-bashrc && git pull && cp .bashrc ~/ && cp .bash_profile ~/ && cp .zshrc ~/ && source ~/.bashrc && cd -'
+alias syncstatus='cd ~/mac-bashrc && git status && cd -'
+
 # Git commit with automatic timestamp
 gitcommit() {
     local message
