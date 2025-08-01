@@ -30,10 +30,14 @@ This is a comprehensive macOS dotfiles repository that provides an enhanced term
 
 ### Dotfiles Management
 ```bash
+# Primary method (works from anywhere)
+cd ~/mac-bashrc
+gitc "optional message"  # Auto-copies dotfiles, commits, pushes, and pulls
+
+# Legacy methods (still available)
 syncup          # Copy local configs to repo, commit, and push
 syncdown        # Pull repo changes and apply to local configs  
 syncstatus      # Check git status of dotfiles repo
-gitc "message"  # Enhanced git commit with auto-push/pull detection
 ```
 
 ### System Maintenance
@@ -96,10 +100,11 @@ The colorful terminal banner (`print_fun_banner` function) displays real-time sy
 
 ### Git Integration
 The `gitcommit`/`gitc` function provides intelligent Git workflow:
-- Auto-commits modified tracked files
-- Checks for commits to push/pull
-- Interactive pull prompts for safety
-- Status reporting with emoji indicators
+- **Smart Dotfiles Detection**: When run in `mac-bashrc` directory, automatically copies dotfiles from home directory (~/.bashrc, ~/.bash_profile, ~/.zshrc, ~/.inputrc) to repo
+- **Complete Git Sync**: Adds all files (tracked + untracked), commits, pushes, and pulls automatically
+- **Cross-Machine Compatibility**: Same `gitc` command works on any Mac - no need for separate sync commands
+- **Status Reporting**: Clear progress indicators with emoji feedback
+- **Automatic Conflict Resolution**: Fetches before operations to avoid conflicts
 
 ### Personal Configuration
 Machine-specific settings are isolated in:
@@ -110,11 +115,16 @@ These files are git-ignored to maintain privacy while syncing configurations.
 ## Development Workflow
 
 When making changes to this repository:
-1. Test changes locally first
-2. Use `syncup` to commit and push changes
-3. Use `syncdown` on other machines to apply updates
-4. Personal configurations stay in `~/.env.local` and `~/.bashrc.personal`
-5. Template files should remain portable (no hardcoded paths/data)
+1. Test changes locally first (edit ~/.bashrc, ~/.bash_profile, etc.)
+2. Navigate to repo: `cd ~/mac-bashrc`
+3. Run `gitc "describe changes"` - automatically handles everything:
+   - Copies updated dotfiles from home directory to repo
+   - Adds all files (tracked + untracked)
+   - Commits with timestamp or custom message
+   - Pushes to remote if needed
+   - Pulls remote changes if available
+4. On other Macs: `cd ~/mac-bashrc && gitc` to sync down changes
+5. Personal configurations stay in `~/.env.local` and `~/.bashrc.personal`
 
 ## Architecture Benefits
 - **Portable**: Works on any Mac without modification
