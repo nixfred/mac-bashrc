@@ -8,7 +8,9 @@
       "Bash(git remote set-url:*)",
       "Bash(source ~/.bashrc)",
       "Bash(diff:*)",
-      "Bash(syncup)"
+      "Bash(syncup)",
+      "Bash(source:*)",
+      "Bash(declare -f gitcommit)"
     ],
     "deny": []
   }
