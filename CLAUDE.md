@@ -28,6 +28,7 @@ This is a comprehensive macOS dotfiles repository that provides an enhanced term
   - **SSH sessions**: Lightweight 4-line banner for quick machine identification
   - **Scripts/automation**: No banner for optimal performance
 - **System Integration**: Weather API, Homebrew status, system monitoring
+- **Enhanced Directory Navigation**: Smart navigation with quick jumps, directory creation, and tree views
 - **Development Tools**: 200+ aliases, Git shortcuts, todo management
 
 ## Common Commands

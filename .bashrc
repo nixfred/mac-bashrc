@@ -48,6 +48,15 @@ alias l='ls -CFhG'
 alias aa='brew update && brew upgrade && brew cleanup'
 alias c='clear'
 alias e='exit'
+
+# Enhanced directory navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ~='cd ~'
+alias -- -='cd -'  # Go back to previous directory
+alias dirs='dirs -v'  # Show directory stack with numbers
 alias sb='source ~/.bashrc'
 alias bm='nano ~/.bashrc && source ~/.bashrc'
 alias top='htop'
@@ -301,6 +310,78 @@ git_legend() {
     echo "  ⬇️  (branch↓)    = Behind remote"
     echo "  💾 (branch$)    = Stash exists"
     echo "  🔄 (branch*+?↑) = Multiple indicators combine"
+}
+
+######################################################################
+# ENHANCED DIRECTORY NAVIGATION
+######################################################################
+
+# Smart cd function that creates directory if it doesn't exist
+mkcd() {
+    if [ $# -ne 1 ]; then
+        echo "Usage: mkcd <directory>"
+        return 1
+    fi
+    mkdir -p "$1" && cd "$1"
+}
+
+# Quick jump to common directories
+cdl() { cd ~/Downloads; }
+cdd() { cd ~/Desktop; }
+cdh() { cd ~; }
+cdt() { cd /tmp; }
+cdr() { cd /; }
+
+# Show directory tree with depth limit
+tree() {
+    local depth=${1:-2}
+    if command -v tree >/dev/null 2>&1; then
+        command tree -L "$depth" -C
+    elif command -v find >/dev/null 2>&1; then
+        find . -maxdepth "$depth" -type d | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
+    else
+        echo "Neither 'tree' nor 'find' command available"
+    fi
+}
+
+# Quick directory size check
+dirsize() {
+    local dir=${1:-.}
+    du -sh "$dir"/* 2>/dev/null | sort -hr
+}
+
+# Find directories by name
+finddir() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: finddir <pattern>"
+        return 1
+    fi
+    find . -type d -iname "*$1*" 2>/dev/null
+}
+
+# Show navigation help
+navhelp() {
+    echo "Directory Navigation Commands:"
+    echo "  ..        = cd .."
+    echo "  ...       = cd ../.."  
+    echo "  ....      = cd ../../.."
+    echo "  .....     = cd ../../../.."
+    echo "  -         = cd - (previous directory)"
+    echo "  ~         = cd ~ (home)"
+    echo "  dirs      = show directory stack"
+    echo ""
+    echo "Quick jumps:"
+    echo "  cdl       = cd ~/Downloads"
+    echo "  cdd       = cd ~/Desktop"  
+    echo "  cdh       = cd ~"
+    echo "  cdt       = cd /tmp"
+    echo "  cdr       = cd /"
+    echo ""
+    echo "Utilities:"
+    echo "  mkcd <dir>     = mkdir -p and cd"
+    echo "  tree [depth]   = show directory tree"
+    echo "  dirsize [dir]  = show directory sizes"
+    echo "  finddir <name> = find directories by name"
 }
 
 PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)${PURPLE}\$(git_branch)${CYAN}\$ ${RESET}"

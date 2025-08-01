@@ -54,6 +54,7 @@ source ~/.zshrc
 ### 🛠️ **Productivity Powerhouse**
 - **200+ aliases**: Common tasks simplified (`ll`, `la`, `weather`, `cleanup`, `aa`)
 - **Smart functions**: `extract`, `mkcd`, `backup`, `killport`, `genpass`, `calc`
+- **🧭 Enhanced Navigation**: Quick directory jumps (`..`, `...`, `cdl`, `cdd`), smart directory creation (`mkcd`), tree views, and size analysis
 - **Todo management**: Built-in `todo` command for task tracking
 - **Git enhancements**: 20+ aliases with colored output and shortcuts
 - **System maintenance**: Automated cleanup and optimization scripts
