@@ -1,3 +1,8 @@
+# Auto-switch to modern bash if we're still in old bash
+if [ "$BASH_VERSION" = "3.2.57(1)-release" ] && [ -x "/opt/homebrew/bin/bash" ]; then
+    exec /opt/homebrew/bin/bash "$@"
+fi
+
 # Optional Fabric bootstrap (if it exists)
 if [ -f "$HOME/.config/fabric/fabric-bootstrap.inc" ]; then
   . "$HOME/.config/fabric/fabric-bootstrap.inc"

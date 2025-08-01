@@ -10,7 +10,19 @@
       "Bash(diff:*)",
       "Bash(syncup)",
       "Bash(source:*)",
-      "Bash(declare -f gitcommit)"
+      "Bash(declare -f gitcommit)",
+      "Bash(cp:*)",
+      "Bash(echo \"TERM: $TERM\")",
+      "Bash(echo \"SHELL: $SHELL\")",
+      "Bash(unset:*)",
+      "Bash(complete -p)",
+      "Bash(shopt)",
+      "Bash(ls:*)",
+      "Bash(shopt:*)",
+      "Bash(echo:*)",
+      "Bash(chsh:*)",
+      "Bash(/opt/homebrew/bin/bash:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

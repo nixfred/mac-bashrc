@@ -352,21 +352,21 @@ print_fun_banner() {
   printf "${BORDER_COLOR}****************************************************${NC}\n"
   printf "${BORDER_COLOR}*${BANNER_COLOR}  🖥️  macOS Terminal System Dashboard  🖥️${BORDER_COLOR}        *${NC}\n"
   printf "${BORDER_COLOR}****************************************************${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Host:        ${VALUE_COLOR}$HOST${BORDER_COLOR}                        *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  macOS:       ${VALUE_COLOR}$MACOS_VER${BORDER_COLOR}                    *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  IPs (int):   ${VALUE_COLOR}$IPs${BORDER_COLOR}     *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  IP (ext):    ${VALUE_COLOR}$EXTERNAL_IP${BORDER_COLOR}                  *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Uptime:      ${VALUE_COLOR}$UPTIME${BORDER_COLOR}                       *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Users:       ${VALUE_COLOR}$USERS${BORDER_COLOR}                         *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Load:        ${VALUE_COLOR}$LOAD${BORDER_COLOR}              *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Disk:        ${VALUE_COLOR}$DISK${BORDER_COLOR}                 *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Memory:      ${VALUE_COLOR}$MEM_INFO${BORDER_COLOR}            *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  CPU Temp:    ${VALUE_COLOR}$TEMP${BORDER_COLOR}                         *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Brew:        ${VALUE_COLOR}$BREW_STATUS${BORDER_COLOR}         *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Weather:     ${VALUE_COLOR}$WEATHER ($WEATHER_ZIPCODE)${BORDER_COLOR}   *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Date:        ${VALUE_COLOR}$DATE${BORDER_COLOR} *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  Last Login:  ${VALUE_COLOR}$LASTLOGIN${BORDER_COLOR} *${NC}\n"
-  printf "${BORDER_COLOR}*${LABEL_COLOR}  SSH Fails:   ${VALUE_COLOR}$SSH_FAILS${BORDER_COLOR}                     *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Host:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$HOST"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  macOS:       ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$MACOS_VER"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  IPs (int):   ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$IPs"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  IP (ext):    ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$EXTERNAL_IP"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Uptime:      ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$UPTIME"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Users:       ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$USERS"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Load:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$LOAD"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Disk:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$DISK"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Memory:      ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$MEM_INFO"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  CPU Temp:    ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$TEMP"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Brew:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$BREW_STATUS"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Weather:     ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$WEATHER ($WEATHER_ZIPCODE)"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Date:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$DATE"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Last Login:  ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$LASTLOGIN"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  SSH Fails:   ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$SSH_FAILS"
   printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 
@@ -428,12 +428,16 @@ fi
 ######################################################################
 
 # Enable programmable completion features
-if [ -f /opt/homebrew/etc/bash_completion ]; then
+if [ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
+    . /opt/homebrew/etc/profile.d/bash_completion.sh
+elif [ -f /opt/homebrew/etc/bash_completion ]; then
     . /opt/homebrew/etc/bash_completion
 elif [ -f /usr/local/etc/bash_completion ]; then
     . /usr/local/etc/bash_completion
 fi
 
+# Enable completion enhancements for old bash (3.2)
+shopt -s cdspell 2>/dev/null
 # cd into directory just by typing the directory name
 shopt -s autocd 2>/dev/null
 
@@ -532,14 +536,14 @@ proj() {
     cd ~/Projects/"$1" 2>/dev/null || cd ~/Documents/"$1" 2>/dev/null || echo "Project not found"
 }
 
-# Terminal title
-case "$TERM" in
-xterm*|rxvt*)
-    PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
-    ;;
-*)
-    ;;
-esac
+# Terminal title - disabled to prevent -ne output
+# case "$TERM" in
+# xterm*|rxvt*)
+#     PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
+#     ;;
+# *)
+#     ;;
+# esac
 
 # Completion for custom commands
 complete -W "add list done clear" todo
@@ -548,7 +552,7 @@ complete -d proj
 ######################################################################
 
 # Disable bracketed paste mode
-printf '\e[?2004l'
+printf '\e[?2004l' >/dev/null 2>&1
 
 ######################################################################
 
