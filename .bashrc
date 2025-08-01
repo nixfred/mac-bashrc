@@ -1025,11 +1025,7 @@ mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
-# System information
-sysinfo() {
-    echo "System Information:"
-    system_profiler SPSoftwareDataType SPHardwareDataType
-}
+# System information - using alias instead of function
 
 # Network utilities
 listening() {
