@@ -230,9 +230,77 @@ BOLD_YELLOW="\[\033[1;33m\]"
 BOLD_CYAN="\[\033[1;36m\]"
 RESET="\[\033[0m\]"
 
-# Git branch function for prompt
+# Enhanced Git branch function with status indicators
+# Status symbols:
+#   * = uncommitted changes (dirty)
+#   + = staged changes
+#   ? = untracked files
+#   ↑ = ahead of remote
+#   ↓ = behind remote  
+#   $ = stash exists
+# Colors: Green = clean, Red = dirty
 git_branch() {
-    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+    # Quick check if we're in a git repository
+    git rev-parse --git-dir >/dev/null 2>&1 || return
+    
+    # Get current branch
+    local branch=$(git branch 2>/dev/null | grep '^*' | colrm 1 2)
+    if [ -z "$branch" ]; then
+        return
+    fi
+    
+    local status=""
+    local color=""
+    
+    # Check for uncommitted changes
+    if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+        status="${status}*"  # dirty/modified
+        color="\033[1;31m"   # red
+    else
+        color="\033[1;32m"   # green
+    fi
+    
+    # Check if we're ahead/behind remote
+    local ahead_behind=$(git status --porcelain=v1 --branch 2>/dev/null | head -1)
+    if echo "$ahead_behind" | grep -q "ahead"; then
+        status="${status}↑"  # ahead
+    fi
+    if echo "$ahead_behind" | grep -q "behind"; then
+        status="${status}↓"  # behind
+    fi
+    
+    # Check for staged changes
+    if git diff --cached --quiet 2>/dev/null; then
+        : # no staged changes
+    else
+        status="${status}+"  # staged changes
+    fi
+    
+    # Check for untracked files
+    if [ -n "$(git ls-files --others --exclude-standard 2>/dev/null)" ]; then
+        status="${status}?"  # untracked files
+    fi
+    
+    # Check for stash
+    if git rev-parse --verify refs/stash >/dev/null 2>&1; then
+        status="${status}$"  # stash exists
+    fi
+    
+    # Output the branch with color and status
+    echo -e "${color}(${branch}${status})\033[0m"
+}
+
+# Show git status legend
+git_legend() {
+    echo "Git prompt status indicators:"
+    echo "  🟢 (branch)     = Clean repository"
+    echo "  🔴 (branch*)    = Uncommitted changes"
+    echo "  📝 (branch+)    = Staged changes"
+    echo "  ❓ (branch?)    = Untracked files"
+    echo "  ⬆️  (branch↑)    = Ahead of remote"
+    echo "  ⬇️  (branch↓)    = Behind remote"
+    echo "  💾 (branch$)    = Stash exists"
+    echo "  🔄 (branch*+?↑) = Multiple indicators combine"
 }
 
 PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)${PURPLE}\$(git_branch)${CYAN}\$ ${RESET}"
