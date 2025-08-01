@@ -1,5 +1,5 @@
-# Auto-switch to modern bash if we're still in old bash
-if [ "$BASH_VERSION" = "3.2.57(1)-release" ] && [ -x "/opt/homebrew/bin/bash" ]; then
+# Auto-switch to modern bash if we're still in old bash (interactive terminals only)
+if [ "$BASH_VERSION" = "3.2.57(1)-release" ] && [ -x "/opt/homebrew/bin/bash" ] && [ -t 0 ] && [ -t 1 ]; then
     exec /opt/homebrew/bin/bash "$@"
 fi
 
@@ -11,12 +11,13 @@ fi
 # Ensure /usr/local/bin comes first (Intel Homebrew compatibility)
 export PATH="/usr/local/bin:$PATH"
 
-# Load Homebrew environment (Apple Silicon)
-/opt/homebrew/bin/brew shellenv | sed 's/^/export /' >> ~/.bash_profile 2>/dev/null
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Load Homebrew environment (Apple Silicon) - with timeout
+if [ -x "/opt/homebrew/bin/brew" ]; then
+    eval "$(timeout 3 /opt/homebrew/bin/brew shellenv 2>/dev/null || echo 'export PATH="/opt/homebrew/bin:$PATH"')"
+fi
 
-# Load .bashrc if it exists
-if [ -f ~/.bashrc ]; then
+# Load .bashrc if it exists (skip if DISABLE_BASHRC is set)
+if [ -f ~/.bashrc ] && [ -z "$DISABLE_BASHRC" ]; then
     source ~/.bashrc
 fi
 
@@ -28,54 +29,12 @@ if command -v brew >/dev/null 2>&1; then
     fi
 fi
 
-# Enable bash completion features
+# Disable POSIX mode and enable bash completion features
 set +o posix
-bind 'set completion-ignore-case on'
-bind 'set show-all-if-ambiguous on'
+bind 'set completion-ignore-case on' 2>/dev/null
+bind 'set show-all-if-ambiguous on' 2>/dev/null
 
 # Enable directory completion specifically
-complete -o default -o dirnames cd
-complete -o default -o dirnames pushd  
-complete -o default -o dirnames popd
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/pi/Applications/iTerm.app/Contents/Resources/utilities:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/Applications/Setapp:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/Applications/Setapp:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/Applications/Setapp:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/Applications/Setapp:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/Applications/Setapp:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
-export export HOMEBREW_PREFIX="/opt/homebrew";
-export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
-export export HOMEBREW_REPOSITORY="/opt/homebrew";
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Applications/VMware Fusion.app/Contents/Public:/Applications/Setapp:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
-export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
-export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";
+complete -o default -o dirnames cd 2>/dev/null
+complete -o default -o dirnames pushd 2>/dev/null
+complete -o default -o dirnames popd 2>/dev/null

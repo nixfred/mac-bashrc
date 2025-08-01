@@ -63,6 +63,12 @@ genpass 20      # Generate secure password
 ./audit-cleanup.sh        # Remove unnecessary packages
 ```
 
+### Diagnostic and Testing
+```bash
+./diagnose-bash.sh        # Comprehensive bash configuration troubleshooting
+./test-banner.sh          # Performance testing for system dashboard
+```
+
 ## Key Files and Their Purpose
 
 ### Core Configuration Files
@@ -75,6 +81,10 @@ genpass 20      # Generate secure password
 - `fresh-mac-install.sh` - Intelligent installation script with system detection
 - `audit-cleanup.sh` - Interactive cleanup for unnecessary packages
 - `dev-tools.sh` - Development environment setup
+
+### Diagnostic and Testing Tools
+- `diagnose-bash.sh` - Multi-shell testing and configuration troubleshooting
+- `test-banner.sh` - Performance testing for system dashboard with timing analysis
 
 ### Template System
 - `.bashrc.template` - Portable bash configuration without hardcoded values
@@ -132,3 +142,24 @@ When making changes to this repository:
 - **Intelligent**: Auto-detects system state and adapts accordingly
 - **Maintainable**: Clean separation between synced and local configurations
 - **Enhanced**: Modern bash features with completion and productivity tools
+
+## Troubleshooting Common Issues
+
+### Bash Hanging or Slow Performance
+If bash commands hang or run slowly:
+1. Run `./diagnose-bash.sh` to test different shells and identify issues
+2. Check for infinite loops in `.bash_profile` (especially the auto-switch logic)
+3. Test system dashboard performance with `./test-banner.sh`
+4. Look for network timeouts in functions that fetch external data (weather, external IP)
+
+### Directory Completion Problems
+Common cd autocomplete issues are handled by:
+1. Auto-switch from old bash (3.2.57) to modern Homebrew bash (5.3+)
+2. Enhanced completion loading in the AUTO-COMPLETION section
+3. Enabled `cdspell` and `autocd` options in bash configuration
+
+### Multi-Machine Sync Issues
+- Ensure SSH keys are properly configured for GitHub access
+- Use `gitc` from within the `mac-bashrc` directory for automatic dotfiles copying
+- Check `syncstatus` to verify repository state before syncing
+- Personal settings in `~/.env.local` and `~/.bashrc.personal` won't sync (by design)

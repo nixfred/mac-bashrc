@@ -29,7 +29,12 @@
       "Bash(bash:*)",
       "Bash(hostname)",
       "Bash(rm:*)",
-      "Bash(/bin/bash:*)"
+      "Bash(/bin/bash:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(mv:*)",
+      "Bash(DISABLE_BASHRC=1 bash -c \"echo ''Bash working without bashrc''\")",
+      "Bash(gitc \"Fix bash hanging issue - add terminal detection to prevent infinite exec loop\")",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
