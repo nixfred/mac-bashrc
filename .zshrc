@@ -294,7 +294,7 @@ print_fun_banner() {
 }
 
 # Run banner on startup
-print_fun_banner
+# print_fun_banner  # Temporarily disabled - causing shell timeouts
 
 ######################################################################
 # ENVIRONMENT VARIABLES AND PATHS
