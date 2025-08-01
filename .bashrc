@@ -27,6 +27,7 @@ WEATHER_ZIPCODE="${WEATHER_ZIPCODE:-12345}"
 ######################################################################
 
 # System management
+alias ron='ssh ron'
 alias eh='sudo nano /etc/hosts'
 alias reboot='sudo reboot'
 alias si='brew install'
@@ -97,6 +98,35 @@ alias gco='git checkout'
 alias gcm='git commit -m'
 alias glog='git log --oneline --graph --decorate'
 
+# Git commit with automatic timestamp
+gitcommit() {
+    local message
+    if [ $# -eq 0 ]; then
+        message="Update $(date '+%Y-%m-%d %H:%M:%S')"
+    else
+        message="$*"
+    fi
+
+    # Check if we're in a git repository
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        echo "Not in a git repository"
+        return 1
+    fi
+
+    # Check if there are changes to commit
+    if [ -n "$(git status --porcelain)" ]; then
+        # Add modified tracked files only (not new untracked files)
+        git add -u
+        git commit -m "$message"
+    else
+        echo "No changes to commit. Current status:"
+        git status --short
+    fi
+}
+
+# Alias for shorter command
+alias gitc='gitcommit'
+
 # Weather shortcuts - uses WEATHER_ZIPCODE variable
 alias weather="curl -s --max-time 5 \"wttr.in/\${WEATHER_ZIPCODE}?format=3\" 2>/dev/null || echo \"Weather service unavailable\""
 alias forecast="curl -s \"wttr.in/\${WEATHER_ZIPCODE}\""
@@ -144,9 +174,19 @@ GREEN="\[\033[0;32m\]"
 BLUE="\[\033[0;34m\]"
 CYAN="\[\033[0;36m\]"
 YELLOW="\[\033[0;33m\]"
+PURPLE="\[\033[0;35m\]"
+BOLD_GREEN="\[\033[1;32m\]"
+BOLD_BLUE="\[\033[1;34m\]"
+BOLD_YELLOW="\[\033[1;33m\]"
+BOLD_CYAN="\[\033[1;36m\]"
 RESET="\[\033[0m\]"
 
-PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)\$ ${RESET}"
+# Git branch function for prompt
+git_branch() {
+    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)${PURPLE}\$(git_branch)${CYAN}\$ ${RESET}"
 
 case "$TERM" in
 xterm*|rxvt*)
