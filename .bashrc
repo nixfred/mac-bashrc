@@ -38,6 +38,7 @@ alias eh='sudo nano /etc/hosts'
 alias reboot='sudo reboot'
 alias si='brew install'
 alias neo='neofetch || screenfetch'
+alias fullbanner='print_fun_banner'  # Show full banner anytime
 alias ip='ifconfig'
 alias df='df -h'
 alias myip='curl -s ifconfig.me'
@@ -300,13 +301,75 @@ weather_detailed() {
 }
 
 ######################################################################
-# MAC BANNER - Enhanced version
+# MAC BANNER - Enhanced version with caching
 ######################################################################
+
+# Cache expensive operations with timestamps
+CACHE_DIR="$HOME/.bashrc_cache"
+mkdir -p "$CACHE_DIR"
+
+# Cache external IP (valid for 30 minutes)
+get_external_ip() {
+    local cache_file="$CACHE_DIR/external_ip"
+    local cache_time=1800  # 30 minutes
+    
+    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -f %m "$cache_file" 2>/dev/null || echo 0))) -lt $cache_time ]]; then
+        cat "$cache_file"
+    else
+        local ip=$(timeout 3 curl -s ifconfig.me 2>/dev/null || echo "N/A")
+        echo "$ip" > "$cache_file" 2>/dev/null
+        echo "$ip"
+    fi
+}
+
+# Cache weather (valid for 15 minutes)
+get_weather() {
+    local cache_file="$CACHE_DIR/weather"
+    local cache_time=900  # 15 minutes
+    
+    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -f %m "$cache_file" 2>/dev/null || echo 0))) -lt $cache_time ]]; then
+        cat "$cache_file"
+    else
+        local weather=$(curl -s --max-time 2 "wttr.in/$WEATHER_ZIPCODE?format=%C+%t" 2>/dev/null || echo "N/A")
+        echo "$weather" > "$cache_file" 2>/dev/null
+        echo "$weather"
+    fi
+}
+
+# Cache brew status (valid for 2 hours)
+get_brew_status() {
+    local cache_file="$CACHE_DIR/brew_status"
+    local cache_time=7200  # 2 hours
+    
+    if [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -f %m "$cache_file" 2>/dev/null || echo 0))) -lt $cache_time ]]; then
+        cat "$cache_file"
+    else
+        local outdated=$(brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ')
+        local status
+        if [ "$outdated" -eq 0 ] 2>/dev/null; then
+            status="Up to date"
+        else
+            status="$outdated packages need updates"
+        fi
+        echo "$status" > "$cache_file" 2>/dev/null
+        echo "$status"
+    fi
+}
+
+# Cache management function
+clear_banner_cache() {
+    if [[ -d "$CACHE_DIR" ]]; then
+        rm -f "$CACHE_DIR"/*
+        echo "Banner cache cleared"
+    else
+        echo "No cache directory found"
+    fi
+}
 
 print_fun_banner() {
   HOST=$(hostname)
   IPs=$(ifconfig | grep 'inet ' | grep -v 127.0.0.1 | awk '{print $2}' | tr '\n' ' ')
-  EXTERNAL_IP=$(timeout 3 curl -s ifconfig.me 2>/dev/null || echo "N/A")
+  EXTERNAL_IP=$(get_external_ip)  # Use cached version
   UPTIME=$(uptime | sed 's/.*up \([^,]*\).*/\1/')
   USERS=$(who | wc -l | tr -d ' ')
   LOAD=$(uptime | awk -F'load averages: ' '{print $2}')
@@ -341,16 +404,11 @@ print_fun_banner() {
   # macOS version
   MACOS_VER=$(sw_vers -productVersion)
 
-  # Brew outdated count
-  BREW_OUTDATED=$(brew outdated --quiet 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$BREW_OUTDATED" -eq 0 ] 2>/dev/null; then
-    BREW_STATUS="Up to date"
-  else
-    BREW_STATUS="$BREW_OUTDATED packages need updates"
-  fi
+  # Use cached brew status
+  BREW_STATUS=$(get_brew_status)
 
-  # Weather using zipcode variable
-  WEATHER=$(curl -s --max-time 2 "wttr.in/$WEATHER_ZIPCODE?format=%C+%t" 2>/dev/null || echo "N/A")
+  # Use cached weather
+  WEATHER=$(get_weather)
 
   # SSH failures from system log (last 24 hours) - simplified for speed
   SSH_FAILS="Check manually with 'log show --last 24h'"
@@ -383,9 +441,38 @@ print_fun_banner() {
   printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 
-# Only show banner for interactive terminals, not scripts
-if [[ $- == *i* ]] && [[ -z "$SCRIPT_MODE" ]] && [[ -z "$SSH_CLIENT" ]] && [[ "$TERM" != "dumb" ]]; then
-    print_fun_banner
+# Lightweight SSH banner for quick machine identification
+print_ssh_banner() {
+  local HOST=$(hostname -s 2>/dev/null || hostname)
+  local USER=$(whoami)
+  local IP=$(echo $SSH_CLIENT | awk '{print $1}' 2>/dev/null || echo "local")
+  local MACOS=$(sw_vers -productVersion 2>/dev/null || echo "macOS")
+  local UPTIME=$(uptime | awk -F'up ' '{print $2}' | awk -F',' '{print $1}' | xargs)
+  local DISK=$(df -h / | awk 'NR==2 {print $5}')
+  
+  # Colors for SSH banner
+  local BANNER_COLOR='\033[1;36m'  # Bright cyan
+  local LABEL_COLOR='\033[1;33m'   # Bright yellow
+  local VALUE_COLOR='\033[0;32m'   # Green
+  local BORDER_COLOR='\033[1;35m'  # Bright magenta
+  local NC='\033[0m'               # No color
+  
+  printf "${BORDER_COLOR}****************************************************${NC}\n"
+  printf "${BORDER_COLOR}*${BANNER_COLOR}  🖥️  SSH: ${VALUE_COLOR}${USER}@${HOST}${BANNER_COLOR} (macOS ${MACOS})${BORDER_COLOR}     *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  From: ${VALUE_COLOR}%-15s ${LABEL_COLOR}Up: ${VALUE_COLOR}%-15s${BORDER_COLOR}*${NC}\n" "$IP" "$UPTIME"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Disk: ${VALUE_COLOR}%-15s ${LABEL_COLOR}Type 'neo' for full stats${BORDER_COLOR} *${NC}\n" "$DISK used"
+  printf "${BORDER_COLOR}****************************************************${NC}\n"
+}
+
+# Smart banner display logic
+if [[ $- == *i* ]] && [[ -z "$SCRIPT_MODE" ]] && [[ "$TERM" != "dumb" ]]; then
+    if [[ -n "$SSH_CLIENT" ]]; then
+        # SSH session - show lightweight banner
+        print_ssh_banner
+    else
+        # Local session - show full banner
+        print_fun_banner
+    fi
 fi
 
 ######################################################################

@@ -45,7 +45,10 @@ source ~/.zshrc
 - **Network info**: Internal/external IPs, load averages, SSH status
 - **Homebrew status**: Package update notifications and maintenance
 - **Git integration**: Repository status and branch information
-- **🚀 Performance Optimized**: Smart display - shows only for interactive sessions, skips SSH sessions and scripts for faster execution
+- **🚀 Performance Optimized**: Context-aware display system:
+  - **Local sessions**: Full detailed dashboard with cached data
+  - **SSH sessions**: Lightweight 4-line banner for quick machine identification
+  - **Scripts/automation**: No banner for faster execution
 - **🌈 Colorful Display**: Bright cyan headers, yellow labels, green values, magenta borders
 
 ### 🛠️ **Productivity Powerhouse**
