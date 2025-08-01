@@ -35,7 +35,12 @@
       "Bash(DISABLE_BASHRC=1 bash -c \"echo ''Bash working without bashrc''\")",
       "Bash(gitc \"Fix bash hanging issue - add terminal detection to prevent infinite exec loop\")",
       "Bash(git add:*)",
-      "Bash(./diagnose-bash.sh:*)"
+      "Bash(./diagnose-bash.sh:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(gitc \"Update Claude settings\")",
+      "Bash(git rebase:*)"
     ],
     "deny": []
   }
