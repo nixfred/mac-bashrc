@@ -383,7 +383,7 @@ print_fun_banner() {
   printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 
-# print_fun_banner  # Temporarily disabled - causing bash timeouts
+print_fun_banner
 
 ######################################################################
 # ENVIRONMENT VARIABLES AND PATHS
@@ -403,10 +403,9 @@ export VISUAL=vim
 export PYTHONDONTWRITEBYTECODE=1
 
 # Node Version Manager
-# Temporarily disabled - may cause hanging
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Golang
 export GOPATH=$HOME/go
@@ -423,10 +422,9 @@ if [ -f /usr/libexec/java_home ]; then
 fi
 
 # Fabric bootstrap (from original)
-# Temporarily disabled - may cause hanging
-# if [ -f "$HOME/.config/fabric/fabric-bootstrap.inc" ]; then
-#     . "$HOME/.config/fabric/fabric-bootstrap.inc"
-# fi
+if [ -f "$HOME/.config/fabric/fabric-bootstrap.inc" ]; then
+    . "$HOME/.config/fabric/fabric-bootstrap.inc"
+fi
 
 # SetApp CLI tools (if available)
 if [ -d "/Applications/Setapp" ]; then
@@ -443,14 +441,13 @@ fi
 ######################################################################
 
 # Enable programmable completion features
-# Temporarily disabled - may cause hanging
-# if [ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
-#     . /opt/homebrew/etc/profile.d/bash_completion.sh
-# elif [ -f /opt/homebrew/etc/bash_completion ]; then
-#     . /opt/homebrew/etc/bash_completion
-# elif [ -f /usr/local/etc/bash_completion ]; then
-#     . /usr/local/etc/bash_completion
-# fi
+if [ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
+    . /opt/homebrew/etc/profile.d/bash_completion.sh
+elif [ -f /opt/homebrew/etc/bash_completion ]; then
+    . /opt/homebrew/etc/bash_completion
+elif [ -f /usr/local/etc/bash_completion ]; then
+    . /usr/local/etc/bash_completion
+fi
 
 # Enable completion enhancements for old bash (3.2)
 shopt -s cdspell 2>/dev/null
