@@ -16,8 +16,7 @@ set output-meta on
 set convert-meta off
 
 # Use Vi editing mode (comment out for Emacs mode)
-# set editing-mode vi
-set editing-mode emacs
+# set editing-mode vi  # Temporarily disabled - may cause hanging
 
 # Emacs mode key bindings (uncomment if preferred)
 # set editing-mode emacs
