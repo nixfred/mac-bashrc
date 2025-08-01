@@ -281,14 +281,44 @@ aa                    # Update Homebrew packages
 ~/dotfiles/cleanup.sh # Deep system cleanup
 ```
 
-### Backup Your Dotfiles
-The repository includes aliases for syncing your dotfiles:
+### Multi-Machine Sync
+Keep your dotfiles synchronized across all your Macs:
+
+#### **Setup on New Machine**
+```bash
+# Clone your dotfiles repo
+git clone git@github.com:nixfred/mac-bashrc.git ~/dotfiles
+cd ~/dotfiles
+
+# Run the setup script
+./fresh-mac-install.sh
+```
+
+#### **Daily Sync Workflow**
+```bash
+# Make changes on any machine, then sync:
+cd ~/dotfiles
+git add . && git commit -m "Update configs"
+git push
+
+# On other machines:
+cd ~/dotfiles && git pull
+```
+
+#### **Quick Sync Aliases**
 ```bash
 upbash              # Push .bashrc changes to GitHub
 upzsh               # Push .zshrc changes to GitHub
 downbash            # Pull .bashrc from GitHub
 downzsh             # Pull .zshrc from GitHub
 ```
+
+#### **SSH Key Management**
+For secure git operations across machines:
+- Set up SSH keys on each machine
+- Add public keys to GitHub (Settings → SSH Keys)
+- Use `git@github.com:nixfred/mac-bashrc.git` URLs for push access
+- Backup SSH keys to a private repository for recovery
 
 ---
 
