@@ -103,7 +103,7 @@ alias syncup='cd ~/mac-bashrc && cp ~/.bashrc . && cp ~/.bash_profile . && cp ~/
 alias syncdown='cd ~/mac-bashrc && git pull && cp .bashrc ~/ && cp .bash_profile ~/ && cp .zshrc ~/ && source ~/.bashrc && cd -'
 alias syncstatus='cd ~/mac-bashrc && git status && cd -'
 
-# Git commit with automatic timestamp
+# Git commit with automatic timestamp, pull, and push
 gitcommit() {
     local message
     if [ $# -eq 0 ]; then
@@ -118,11 +118,27 @@ gitcommit() {
         return 1
     fi
 
+    # Pull latest changes first
+    echo "Pulling latest changes..."
+    if ! git pull; then
+        echo "Failed to pull changes. Please resolve conflicts and try again."
+        return 1
+    fi
+
     # Check if there are changes to commit
     if [ -n "$(git status --porcelain)" ]; then
         # Add modified tracked files only (not new untracked files)
         git add -u
         git commit -m "$message"
+        
+        # Push changes
+        echo "Pushing changes..."
+        if git push; then
+            echo "✅ Changes committed and pushed successfully"
+        else
+            echo "❌ Failed to push changes"
+            return 1
+        fi
     else
         echo "No changes to commit. Current status:"
         git status --short
