@@ -30,6 +30,7 @@ This is a comprehensive macOS dotfiles repository that provides an enhanced term
 - **System Integration**: Weather API, Homebrew status, system monitoring
 - **Enhanced Directory Navigation**: Smart navigation with quick jumps, directory creation, and tree views
 - **System Health Monitoring**: Real-time health alerts with configurable thresholds for disk, memory, and load average
+- **Quick Monitoring Commands**: Comprehensive system monitoring aliases and functions (`syssum`, `procs`, `netsum`, `monitor`)
 - **Development Tools**: 200+ aliases, Git shortcuts, todo management
 
 ## Common Commands

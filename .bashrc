@@ -61,10 +61,21 @@ alias sb='source ~/.bashrc'
 alias bm='nano ~/.bashrc && source ~/.bashrc'
 alias top='htop'
 alias htop='htop'
+# System monitoring aliases
 alias du='du -sh * | sort -h'
+alias dudir='du -sh */ | sort -hr'  # Directory sizes only
 alias memtop='ps aux | sort -k4 -nr | head -n 15'
 alias cputop='ps aux | sort -k3 -nr | head -n 15'
 alias temp='sysctl -n machdep.xcpm.cpu_thermal_state 2>/dev/null || echo "Temperature not available"'
+
+# Quick system info
+alias sysinfo='system_profiler SPSoftwareDataType SPHardwareDataType'
+alias diskinfo='df -h'
+alias meminfo='vm_stat | head -20'
+alias loadavg='uptime'
+alias proccount='ps aux | wc -l'
+alias netstat='netstat -tuln'
+alias ports='lsof -i -P -n | grep LISTEN'
 
 # Additional useful aliases
 alias ..='cd ..'
@@ -494,6 +505,133 @@ set_health_thresholds() {
     echo "  export HEALTH_DISK_WARNING=85"
     echo "  export HEALTH_DISK_CRITICAL=95"
     echo "  # etc..."
+}
+
+######################################################################
+# QUICK MONITORING COMMANDS
+######################################################################
+
+# Show top processes by CPU and memory
+procs() {
+    echo "🔥 Top CPU Users:"
+    ps aux | head -1
+    ps aux | sort -k3 -nr | head -10
+    echo ""
+    echo "🧠 Top Memory Users:"
+    ps aux | head -1  
+    ps aux | sort -k4 -nr | head -10
+}
+
+# Network connection summary
+netsum() {
+    echo "🌐 Network Connections Summary:"
+    netstat -an | awk '
+    /^tcp/ { 
+        states[$6]++ 
+    } 
+    END { 
+        for (state in states) 
+            printf "  %-12s: %d\n", state, states[state] 
+    }'
+    echo ""
+    echo "📡 Listening Ports:"
+    lsof -i -P -n | grep LISTEN | awk '{print $1, $9}' | sort -u
+}
+
+# Disk usage summary with warnings
+disksum() {
+    echo "💾 Disk Usage Summary:"
+    df -h | grep -E '^/dev/' | while read line; do
+        usage=$(echo $line | awk '{print $5}' | sed 's/%//')
+        if [ "$usage" -ge 90 ]; then
+            echo "🔴 $line"
+        elif [ "$usage" -ge 80 ]; then
+            echo "🟡 $line"  
+        else
+            echo "✅ $line"
+        fi
+    done
+}
+
+# System resource summary
+syssum() {
+    echo "🖥️  System Resource Summary:"
+    echo "=========================="
+    
+    # Uptime and load
+    local uptime_info=$(uptime)
+    echo "⏱️  $uptime_info"
+    echo ""
+    
+    # Memory summary
+    local mem_total=$(sysctl -n hw.memsize | awk '{print int($1/1024/1024/1024) "GB"}')
+    local mem_free=$(vm_stat | awk '/Pages free/ {print int($3 * 4096 / 1024 / 1024) "MB"}')
+    echo "🧠 Memory: $mem_free free of $mem_total total"
+    
+    # Disk summary
+    echo "💾 Disk Usage:"
+    df -h / | tail -1 | awk '{printf "   Root: %s used (%s free of %s)\n", $5, $4, $2}'
+    
+    # Process count
+    local proc_count=$(ps aux | wc -l)
+    echo "⚙️  Processes: $proc_count running"
+    
+    # Network
+    local connections=$(netstat -an | grep ESTABLISHED | wc -l)
+    echo "🌐 Network: $connections active connections"
+    
+    echo ""
+    get_health_alerts
+}
+
+# Monitor system in real-time (Ctrl+C to exit)
+monitor() {
+    echo "🔄 Real-time System Monitor (Ctrl+C to exit)"
+    echo "============================================="
+    while true; do
+        clear
+        echo "$(date)"
+        echo ""
+        syssum
+        sleep 5
+    done
+}
+
+# Show all monitoring commands
+monhelp() {
+    echo "🔍 System Monitoring Commands:"
+    echo "=============================="
+    echo ""
+    echo "📊 Quick Info Aliases:"
+    echo "  sysinfo     = Full system information"
+    echo "  diskinfo    = Disk usage (df -h)"
+    echo "  meminfo     = Memory statistics"
+    echo "  loadavg     = Load average and uptime"
+    echo "  proccount   = Number of running processes"
+    echo "  ports       = Listening network ports"
+    echo "  netstat     = Network connections"
+    echo ""
+    echo "🔥 Process Monitoring:"
+    echo "  memtop      = Top 15 memory users"
+    echo "  cputop      = Top 15 CPU users"
+    echo "  procs       = Combined CPU + memory top lists"
+    echo ""
+    echo "💾 Disk Monitoring:"
+    echo "  du          = Directory sizes (sorted)"
+    echo "  dudir       = Directory sizes only"
+    echo "  disksum     = Color-coded disk usage warnings"
+    echo ""
+    echo "🌐 Network Monitoring:"
+    echo "  netsum      = Network connection summary"
+    echo "  ports       = Listening ports"
+    echo ""
+    echo "🏥 System Health:"
+    echo "  healthcheck = Full health report"
+    echo "  syssum      = System resource summary"
+    echo "  monitor     = Real-time monitoring (5s refresh)"
+    echo ""
+    echo "⚙️  Configuration:"
+    echo "  set_health_thresholds = Show threshold settings"
 }
 
 PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)${PURPLE}\$(git_branch)${CYAN}\$ ${RESET}"

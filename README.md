@@ -1,5 +1,5 @@
 # 🚀 Enhanced macOS Terminal Configuration
-### Version 1.0 - Production Ready
+### Version 2.0 - Feature Complete
 
 > Smart terminal environment setup for macOS with intelligent system detection, automated package management, and comprehensive dotfiles management. Featuring colorful system dashboard, portable configurations, and robust error handling.
 
@@ -56,6 +56,7 @@ source ~/.zshrc
 - **Smart functions**: `extract`, `mkcd`, `backup`, `killport`, `genpass`, `calc`
 - **🧭 Enhanced Navigation**: Quick directory jumps (`..`, `...`, `cdl`, `cdd`), smart directory creation (`mkcd`), tree views, and size analysis
 - **🚨 Health Monitoring**: Real-time system health alerts with configurable thresholds (disk, memory, load), integrated into banners
+- **📊 Quick Monitoring**: Comprehensive monitoring commands (`syssum`, `procs`, `disksum`, `netsum`, `monitor`, `monhelp`)
 - **Todo management**: Built-in `todo` command for task tracking
 - **Git enhancements**: 20+ aliases with colored output and shortcuts
 - **System maintenance**: Automated cleanup and optimization scripts
