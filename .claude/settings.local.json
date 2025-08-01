@@ -5,7 +5,8 @@
       "Bash(git pull:*)",
       "Bash(alias sb)",
       "Bash(alias sb='source ~/.bashrc')",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "Bash(source ~/.bashrc)"
     ],
     "deny": []
   }
