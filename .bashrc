@@ -384,6 +384,118 @@ navhelp() {
     echo "  finddir <name> = find directories by name"
 }
 
+######################################################################
+# SYSTEM HEALTH MONITORING
+######################################################################
+
+# Health check thresholds (configurable)
+HEALTH_DISK_WARNING=80      # Disk usage warning at 80%
+HEALTH_DISK_CRITICAL=90     # Disk usage critical at 90%
+HEALTH_MEM_WARNING=80       # Memory usage warning at 80%
+HEALTH_MEM_CRITICAL=90      # Memory usage critical at 90%
+HEALTH_LOAD_WARNING=4.0     # Load average warning
+HEALTH_LOAD_CRITICAL=8.0    # Load average critical
+
+# Check system health and return alerts
+get_health_alerts() {
+    local alerts=()
+    
+    # Check disk usage
+    local disk_usage=$(df -h / | awk 'NR==2 {print $5}' | sed 's/%//')
+    if [ "$disk_usage" -ge "$HEALTH_DISK_CRITICAL" ]; then
+        alerts+=("🔴 CRITICAL: Disk ${disk_usage}% full")
+    elif [ "$disk_usage" -ge "$HEALTH_DISK_WARNING" ]; then
+        alerts+=("🟡 WARNING: Disk ${disk_usage}% full")
+    fi
+    
+    # Check memory usage
+    local mem_info=$(vm_stat | awk '
+        /page size/ { gsub(/[^0-9]/, "", $0); pagesize = $0 }
+        /Pages free/ { free = $3 }
+        /Pages active/ { active = $3 }
+        /Pages inactive/ { inactive = $3 }
+        /Pages speculative/ { speculative = $3 }
+        /Pages wired/ { wired = $3 }
+        END {
+            gsub(/\./, "", free); gsub(/\./, "", active); gsub(/\./, "", inactive);
+            gsub(/\./, "", speculative); gsub(/\./, "", wired);
+            total_pages = free + active + inactive + speculative + wired
+            used_pages = active + inactive + wired
+            if (total_pages > 0) {
+                mem_usage = (used_pages * 100) / total_pages
+                print int(mem_usage)
+            } else {
+                print 0
+            }
+        }')
+    
+    if [ "$mem_info" -ge "$HEALTH_MEM_CRITICAL" ]; then
+        alerts+=("🔴 CRITICAL: Memory ${mem_info}% used")
+    elif [ "$mem_info" -ge "$HEALTH_MEM_WARNING" ]; then
+        alerts+=("🟡 WARNING: Memory ${mem_info}% used")
+    fi
+    
+    # Check load average (1-minute load)
+    local load_avg=$(uptime | awk -F'load averages: ' '{print $2}' | awk '{print $1}')
+    if command -v bc >/dev/null 2>&1; then
+        if (( $(echo "$load_avg > $HEALTH_LOAD_CRITICAL" | bc -l) )); then
+            alerts+=("🔴 CRITICAL: Load average ${load_avg}")
+        elif (( $(echo "$load_avg > $HEALTH_LOAD_WARNING" | bc -l) )); then
+            alerts+=("🟡 WARNING: Load average ${load_avg}")
+        fi
+    fi
+    
+    # Print alerts
+    for alert in "${alerts[@]}"; do
+        echo "$alert"
+    done
+}
+
+# Manual health check command
+healthcheck() {
+    echo "🏥 System Health Report:"
+    echo "======================="
+    
+    # Current status
+    local disk_usage=$(df -h / | awk 'NR==2 {print $5, "used on", $2}')
+    local load_avg=$(uptime | awk -F'load averages: ' '{print $2}')
+    local uptime=$(uptime | sed 's/.*up \([^,]*\).*/\1/')
+    
+    echo "💾 Disk Usage: $disk_usage"
+    echo "⚡ Load Average: $load_avg"
+    echo "⏱️  Uptime: $uptime"
+    echo ""
+    
+    # Health alerts
+    local alerts=$(get_health_alerts)
+    if [ -n "$alerts" ]; then
+        echo "🚨 Health Alerts:"
+        echo "$alerts"
+    else
+        echo "✅ All systems healthy"
+    fi
+    echo ""
+    
+    # Thresholds
+    echo "⚙️  Current Thresholds:"
+    echo "   Disk Warning: ${HEALTH_DISK_WARNING}% Critical: ${HEALTH_DISK_CRITICAL}%"
+    echo "   Memory Warning: ${HEALTH_MEM_WARNING}% Critical: ${HEALTH_MEM_CRITICAL}%"
+    echo "   Load Warning: ${HEALTH_LOAD_WARNING} Critical: ${HEALTH_LOAD_CRITICAL}"
+}
+
+# Set custom health thresholds
+set_health_thresholds() {
+    echo "Current health monitoring thresholds:"
+    echo "  Disk warning: ${HEALTH_DISK_WARNING}% critical: ${HEALTH_DISK_CRITICAL}%"
+    echo "  Memory warning: ${HEALTH_MEM_WARNING}% critical: ${HEALTH_MEM_CRITICAL}%"
+    echo "  Load warning: ${HEALTH_LOAD_WARNING} critical: ${HEALTH_LOAD_CRITICAL}"
+    echo ""
+    echo "To modify, add to ~/.bashrc.personal:"
+    echo "  export HEALTH_DISK_WARNING=85"
+    echo "  export HEALTH_DISK_CRITICAL=95"
+    echo "  # etc..."
+}
+
 PS1="${GREEN}\u${RED}@${YELLOW}\h${CYAN}:(\w)${PURPLE}\$(git_branch)${CYAN}\$ ${RESET}"
 
 case "$TERM" in
@@ -587,6 +699,21 @@ print_fun_banner() {
   printf "${BORDER_COLOR}*${LABEL_COLOR}  Date:        ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$DATE"
   printf "${BORDER_COLOR}*${LABEL_COLOR}  Last Login:  ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$LASTLOGIN"
   printf "${BORDER_COLOR}*${LABEL_COLOR}  SSH Fails:   ${VALUE_COLOR}%-30s${BORDER_COLOR}*${NC}\n" "$SSH_FAILS"
+  
+  # Show health alerts if any
+  local health_alerts=$(get_health_alerts)
+  if [ -n "$health_alerts" ]; then
+    printf "${BORDER_COLOR}*${NC}\n"
+    printf "${BORDER_COLOR}*${BANNER_COLOR}  🚨 SYSTEM HEALTH ALERTS:${BORDER_COLOR}                    *${NC}\n"
+    while IFS= read -r alert; do
+      # Strip ANSI codes for length calculation
+      local plain_alert=$(echo "$alert" | sed 's/\x1b\[[0-9;]*m//g')
+      local padding=$((48 - ${#plain_alert}))
+      if [ $padding -lt 0 ]; then padding=0; fi
+      printf "${BORDER_COLOR}*  ${alert}${BORDER_COLOR}$(printf '%*s' $padding '')*${NC}\n"
+    done <<< "$health_alerts"
+  fi
+  
   printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 
@@ -610,6 +737,16 @@ print_ssh_banner() {
   printf "${BORDER_COLOR}*${BANNER_COLOR}  🖥️  SSH: ${VALUE_COLOR}${USER}@${HOST}${BANNER_COLOR} (macOS ${MACOS})${BORDER_COLOR}     *${NC}\n"
   printf "${BORDER_COLOR}*${LABEL_COLOR}  From: ${VALUE_COLOR}%-15s ${LABEL_COLOR}Up: ${VALUE_COLOR}%-15s${BORDER_COLOR}*${NC}\n" "$IP" "$UPTIME"
   printf "${BORDER_COLOR}*${LABEL_COLOR}  Disk: ${VALUE_COLOR}%-15s ${LABEL_COLOR}Type 'neo' for full stats${BORDER_COLOR} *${NC}\n" "$DISK used"
+  
+  # Show critical health alerts only (for SSH brevity)
+  local health_alerts=$(get_health_alerts | grep "🔴 CRITICAL")
+  if [ -n "$health_alerts" ]; then
+    printf "${BORDER_COLOR}*${NC}\n"
+    while IFS= read -r alert; do
+      printf "${BORDER_COLOR}*  ${alert}${BORDER_COLOR}$(printf '%*s' $((48 - ${#alert})) '')*${NC}\n"
+    done <<< "$health_alerts"
+  fi
+  
   printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 

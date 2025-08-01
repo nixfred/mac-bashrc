@@ -55,6 +55,7 @@ source ~/.zshrc
 - **200+ aliases**: Common tasks simplified (`ll`, `la`, `weather`, `cleanup`, `aa`)
 - **Smart functions**: `extract`, `mkcd`, `backup`, `killport`, `genpass`, `calc`
 - **🧭 Enhanced Navigation**: Quick directory jumps (`..`, `...`, `cdl`, `cdd`), smart directory creation (`mkcd`), tree views, and size analysis
+- **🚨 Health Monitoring**: Real-time system health alerts with configurable thresholds (disk, memory, load), integrated into banners
 - **Todo management**: Built-in `todo` command for task tracking
 - **Git enhancements**: 20+ aliases with colored output and shortcuts
 - **System maintenance**: Automated cleanup and optimization scripts
