@@ -15,7 +15,12 @@ export PATH="/usr/local/bin:$PATH"
 /opt/homebrew/bin/brew shellenv | sed 's/^/export /' >> ~/.bash_profile 2>/dev/null
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-# Install bash-completion@2 for modern bash
+# Load .bashrc if it exists
+if [ -f ~/.bashrc ]; then
+    source ~/.bashrc
+fi
+
+# Install bash-completion@2 for modern bash (after .bashrc)
 if command -v brew >/dev/null 2>&1; then
     HOMEBREW_PREFIX=$(brew --prefix)
     if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
@@ -23,10 +28,15 @@ if command -v brew >/dev/null 2>&1; then
     fi
 fi
 
-# Load .bashrc if it exists
-if [ -f ~/.bashrc ]; then
-    source ~/.bashrc
-fi
+# Enable bash completion features
+set +o posix
+bind 'set completion-ignore-case on'
+bind 'set show-all-if-ambiguous on'
+
+# Enable directory completion specifically
+complete -o default -o dirnames cd
+complete -o default -o dirnames pushd  
+complete -o default -o dirnames popd
 export export HOMEBREW_PREFIX="/opt/homebrew";
 export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
 export export HOMEBREW_REPOSITORY="/opt/homebrew";

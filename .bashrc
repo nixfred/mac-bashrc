@@ -11,7 +11,7 @@ case $- in
 esac
 
 ####
-#### Version check v3.2
+#### Version check v3.3
 ####
 
 ######################################################################
@@ -120,42 +120,55 @@ gitcommit() {
 
     # Check if we're in a git repository
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
-        echo "Not in a git repository"
+        echo "❌ Not in a git repository"
         return 1
     fi
 
-    # Check if there are changes to commit
+    echo "🔄 Starting git sync..."
+    
+    # Special handling for mac-bashrc repo - auto-copy dotfiles
+    if [[ "$(basename "$(pwd)")" == "mac-bashrc" ]]; then
+        echo "📂 Detected mac-bashrc repo - copying dotfiles..."
+        [ -f ~/.bashrc ] && cp ~/.bashrc . && echo "  ✅ Copied .bashrc"
+        [ -f ~/.bash_profile ] && cp ~/.bash_profile . && echo "  ✅ Copied .bash_profile"  
+        [ -f ~/.zshrc ] && cp ~/.zshrc . && echo "  ✅ Copied .zshrc"
+        [ -f ~/.inputrc ] && cp ~/.inputrc . && echo "  ✅ Copied .inputrc"
+    fi
+    
+    # Fetch first to get latest remote info
+    echo "📡 Fetching from remote..."
+    git fetch --quiet
+
+    # Add all files and commit if there are changes
     if [ -n "$(git status --porcelain)" ]; then
-        # Add modified tracked files only (not new untracked files)
-        git add -u
+        echo "📝 Adding all files..."
+        git add -A
+        echo "💾 Committing changes..."
         git commit -m "$message"
-        echo "✅ Changes committed"
+        echo "✅ Changes committed: $message"
     else
-        echo "No changes to commit."
+        echo "ℹ️  No local changes to commit"
     fi
 
-    # Always show status first
+    # Show current status
     git status --short
 
     # Check if we have commits to push
     local commits_ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
     if [ "$commits_ahead" -gt 0 ]; then
         echo "📤 Pushing $commits_ahead commit(s) to remote..."
-        git push
+        git push && echo "✅ Push completed"
+    else
+        echo "ℹ️  No commits to push"
     fi
 
     # Check if there are commits to pull
-    git fetch --quiet
     local commits_behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
     if [ "$commits_behind" -gt 0 ]; then
-        echo "📥 $commits_behind commit(s) available to pull from remote"
-        read -p "Pull now? (y/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            git pull
-        fi
-    elif [ "$commits_ahead" -eq 0 ] && [ "$commits_behind" -eq 0 ]; then
-        echo "✅ Repository is up to date"
+        echo "📥 $commits_behind commit(s) available from remote"
+        git pull && echo "✅ Pull completed"
+    else
+        echo "✅ Repository is up to date with remote"
     fi
 }
 
@@ -548,6 +561,9 @@ proj() {
 # Completion for custom commands
 complete -W "add list done clear" todo
 complete -d proj
+
+# Enable directory completion for cd command
+complete -d cd pushd popd
 
 ######################################################################
 

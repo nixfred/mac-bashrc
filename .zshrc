@@ -367,6 +367,11 @@ zstyle ':completion:*' list-colors ''
 # Menu selection
 zstyle ':completion:*' menu select
 
+# Directory completion for cd
+zstyle ':completion:*:cd:*' complete-options true
+zstyle ':completion:*:cd:*' file-sort modification
+zstyle ':completion:*:cd:*' special-dirs true
+
 ######################################################################
 # DOTFILES MANAGEMENT
 ######################################################################
