@@ -6,7 +6,9 @@
       "Bash(alias sb)",
       "Bash(alias sb='source ~/.bashrc')",
       "Bash(git remote set-url:*)",
-      "Bash(source ~/.bashrc)"
+      "Bash(source ~/.bashrc)",
+      "Bash(diff:*)",
+      "Bash(syncup)"
     ],
     "deny": []
   }
