@@ -107,7 +107,7 @@ alias syncup='cd ~/mac-bashrc && cp ~/.bashrc . && cp ~/.bash_profile . && cp ~/
 alias syncdown='cd ~/mac-bashrc && git pull && cp .bashrc ~/ && cp .bash_profile ~/ && cp .zshrc ~/ && source ~/.bashrc && cd -'
 alias syncstatus='cd ~/mac-bashrc && git status && cd -'
 
-# Git commit with automatic timestamp
+# Git commit with automatic timestamp, push, and pull check
 gitcommit() {
     local message
     if [ $# -eq 0 ]; then
@@ -127,9 +127,33 @@ gitcommit() {
         # Add modified tracked files only (not new untracked files)
         git add -u
         git commit -m "$message"
+        echo "✅ Changes committed"
     else
-        echo "No changes to commit. Current status:"
-        git status --short
+        echo "No changes to commit."
+    fi
+
+    # Always show status first
+    git status --short
+
+    # Check if we have commits to push
+    local commits_ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
+    if [ "$commits_ahead" -gt 0 ]; then
+        echo "📤 Pushing $commits_ahead commit(s) to remote..."
+        git push
+    fi
+
+    # Check if there are commits to pull
+    git fetch --quiet
+    local commits_behind=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+    if [ "$commits_behind" -gt 0 ]; then
+        echo "📥 $commits_behind commit(s) available to pull from remote"
+        read -p "Pull now? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            git pull
+        fi
+    elif [ "$commits_ahead" -eq 0 ] && [ "$commits_behind" -eq 0 ]; then
+        echo "✅ Repository is up to date"
     fi
 }
 
