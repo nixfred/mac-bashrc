@@ -93,6 +93,35 @@ alias glog='git log --oneline --graph --decorate'
 alias weather='curl -s --max-time 5 "wttr.in/30677?format=3" 2>/dev/null || echo "Weather service unavailable"'
 alias forecast='curl -s "wttr.in/30677"'
 
+# Git commit with automatic timestamp
+gitcommit() {
+    local message
+    if [ $# -eq 0 ]; then
+        message="Update $(date '+%Y-%m-%d %H:%M:%S')"
+    else
+        message="$*"
+    fi
+
+    # Check if we're in a git repository
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        echo "Not in a git repository"
+        return 1
+    fi
+
+    # Check if there are changes to commit
+    if [ -n "$(git status --porcelain)" ]; then
+        # Add modified tracked files only (not new untracked files)
+        git add -u
+        git commit -m "$message"
+    else
+        echo "No changes to commit. Current status:"
+        git status --short
+    fi
+}
+
+# Alias for shorter command
+alias gitc='gitcommit'
+
 ######################################################################
 # HISTORY CONFIGURATION
 ######################################################################
