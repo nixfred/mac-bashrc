@@ -39,12 +39,13 @@ source ~/.zshrc
 - **Backup Protection**: Creates timestamped backups of existing configurations
 - **Health Monitoring**: System health checks with actionable warnings
 
-### 🎨 **Beautiful Colorful System Dashboard**
+### 🎨 **Smart System Dashboard**
 - **System stats**: CPU, memory, disk usage, uptime with accurate readings
-- **Weather integration**: Real-time weather for your location (zipcode 30677)
+- **Weather integration**: Real-time weather for your location
 - **Network info**: Internal/external IPs, load averages, SSH status
 - **Homebrew status**: Package update notifications and maintenance
 - **Git integration**: Repository status and branch information
+- **🚀 Performance Optimized**: Smart display - shows only for interactive sessions, skips SSH sessions and scripts for faster execution
 - **🌈 Colorful Display**: Bright cyan headers, yellow labels, green values, magenta borders
 
 ### 🛠️ **Productivity Powerhouse**

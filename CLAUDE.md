@@ -23,6 +23,7 @@ This is a comprehensive macOS dotfiles repository that provides an enhanced term
 ### Bash Enhancement Features
 - **Modern Bash Support**: Auto-detection and switching from macOS bash 3.2 to Homebrew bash 5.3+
 - **Completion System**: Enhanced directory completion and programmable completion
+- **Smart System Banner**: Intelligent display system that shows banner only for interactive sessions, skipping SSH sessions and scripts for optimal performance
 - **System Integration**: Weather API, Homebrew status, system monitoring
 - **Development Tools**: 200+ aliases, Git shortcuts, todo management
 
