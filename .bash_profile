@@ -1,9 +1,30 @@
-export OPENAI_API_KEY="your-new-api-key"
-export OPENAI_API_KEY="your-new-api-key"
-if [ -f "/Users/pi/.config/fabric/fabric-bootstrap.inc" ]; then . "/Users/pi/.config/fabric/fabric-bootstrap.inc"; fi
+# Optional Fabric bootstrap (if it exists)
+if [ -f "$HOME/.config/fabric/fabric-bootstrap.inc" ]; then
+  . "$HOME/.config/fabric/fabric-bootstrap.inc"
+fi
+
+# Ensure /usr/local/bin comes first (Intel Homebrew compatibility)
+export PATH="/usr/local/bin:$PATH"
+
+# Load Homebrew environment (Apple Silicon)
+/opt/homebrew/bin/brew shellenv | sed 's/^/export /' >> ~/.bash_profile 2>/dev/null
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# Install bash-completion@2 for modern bash
+if command -v brew >/dev/null 2>&1; then
+    HOMEBREW_PREFIX=$(brew --prefix)
+    if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+        source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+    fi
+fi
+
+# Load .bashrc if it exists
 if [ -f ~/.bashrc ]; then
     source ~/.bashrc
 fi
-eval "$(/opt/homebrew/bin/brew shellenv)"
-eval "$(/opt/homebrew/bin/brew shellenv)"
-eval "$(/opt/homebrew/bin/brew shellenv)"
+export export HOMEBREW_PREFIX="/opt/homebrew";
+export export HOMEBREW_CELLAR="/opt/homebrew/Cellar";
+export export HOMEBREW_REPOSITORY="/opt/homebrew";
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Users/pi/Applications/iTerm.app/Contents/Resources/utilities:/usr/local/go/bin:/Users/pi/.local/bin:/Users/pi/go/bin"; export PATH;
+export [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}";
+export export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}";

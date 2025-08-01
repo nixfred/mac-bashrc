@@ -31,6 +31,8 @@ WEATHER_ZIPCODE="${WEATHER_ZIPCODE:-12345}"
 ######################################################################
 
 # System management
+alias fnix='ssh 100.100.212.35'
+alias mac='ssh 100.107.213.88'
 alias ron='ssh ron'
 alias eh='sudo nano /etc/hosts'
 alias reboot='sudo reboot'
@@ -347,25 +349,25 @@ print_fun_banner() {
   local BORDER_COLOR='\033[1;35m'  # Bright magenta
   local NC='\033[0m'               # No color
   
-  echo -e "${BORDER_COLOR}****************************************************${NC}"
-  echo -e "${BORDER_COLOR}*${BANNER_COLOR}  🖥️  macOS Terminal System Dashboard  🖥️${BORDER_COLOR}        *${NC}"
-  echo -e "${BORDER_COLOR}****************************************************${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Host:        ${VALUE_COLOR}$HOST${BORDER_COLOR}                        *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  macOS:       ${VALUE_COLOR}$MACOS_VER${BORDER_COLOR}                    *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  IPs (int):   ${VALUE_COLOR}$IPs${BORDER_COLOR}     *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  IP (ext):    ${VALUE_COLOR}$EXTERNAL_IP${BORDER_COLOR}                  *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Uptime:      ${VALUE_COLOR}$UPTIME${BORDER_COLOR}                       *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Users:       ${VALUE_COLOR}$USERS${BORDER_COLOR}                         *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Load:        ${VALUE_COLOR}$LOAD${BORDER_COLOR}              *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Disk:        ${VALUE_COLOR}$DISK${BORDER_COLOR}                 *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Memory:      ${VALUE_COLOR}$MEM_INFO${BORDER_COLOR}            *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  CPU Temp:    ${VALUE_COLOR}$TEMP${BORDER_COLOR}                         *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Brew:        ${VALUE_COLOR}$BREW_STATUS${BORDER_COLOR}         *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Weather:     ${VALUE_COLOR}$WEATHER ($WEATHER_ZIPCODE)${BORDER_COLOR}   *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Date:        ${VALUE_COLOR}$DATE${BORDER_COLOR} *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  Last Login:  ${VALUE_COLOR}$LASTLOGIN${BORDER_COLOR} *${NC}"
-  echo -e "${BORDER_COLOR}*${LABEL_COLOR}  SSH Fails:   ${VALUE_COLOR}$SSH_FAILS${BORDER_COLOR}                     *${NC}"
-  echo -e "${BORDER_COLOR}****************************************************${NC}"
+  printf "${BORDER_COLOR}****************************************************${NC}\n"
+  printf "${BORDER_COLOR}*${BANNER_COLOR}  🖥️  macOS Terminal System Dashboard  🖥️${BORDER_COLOR}        *${NC}\n"
+  printf "${BORDER_COLOR}****************************************************${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Host:        ${VALUE_COLOR}$HOST${BORDER_COLOR}                        *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  macOS:       ${VALUE_COLOR}$MACOS_VER${BORDER_COLOR}                    *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  IPs (int):   ${VALUE_COLOR}$IPs${BORDER_COLOR}     *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  IP (ext):    ${VALUE_COLOR}$EXTERNAL_IP${BORDER_COLOR}                  *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Uptime:      ${VALUE_COLOR}$UPTIME${BORDER_COLOR}                       *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Users:       ${VALUE_COLOR}$USERS${BORDER_COLOR}                         *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Load:        ${VALUE_COLOR}$LOAD${BORDER_COLOR}              *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Disk:        ${VALUE_COLOR}$DISK${BORDER_COLOR}                 *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Memory:      ${VALUE_COLOR}$MEM_INFO${BORDER_COLOR}            *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  CPU Temp:    ${VALUE_COLOR}$TEMP${BORDER_COLOR}                         *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Brew:        ${VALUE_COLOR}$BREW_STATUS${BORDER_COLOR}         *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Weather:     ${VALUE_COLOR}$WEATHER ($WEATHER_ZIPCODE)${BORDER_COLOR}   *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Date:        ${VALUE_COLOR}$DATE${BORDER_COLOR} *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  Last Login:  ${VALUE_COLOR}$LASTLOGIN${BORDER_COLOR} *${NC}\n"
+  printf "${BORDER_COLOR}*${LABEL_COLOR}  SSH Fails:   ${VALUE_COLOR}$SSH_FAILS${BORDER_COLOR}                     *${NC}\n"
+  printf "${BORDER_COLOR}****************************************************${NC}\n"
 }
 
 print_fun_banner
@@ -546,7 +548,7 @@ complete -d proj
 ######################################################################
 
 # Disable bracketed paste mode
-printf "\e[?2004l"
+printf '\e[?2004l'
 
 ######################################################################
 
